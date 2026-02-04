@@ -1,0 +1,193 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-background: #F3F4F6;
+  --color-foreground: #111827;
+
+  --color-card: #ffffff;
+  --color-card-foreground: #111827;
+
+  --color-popover: #ffffff;
+  --color-popover-foreground: #111827;
+
+  --color-primary: #115E59;
+  --color-primary-foreground: #FFFFFF;
+
+  --color-secondary: #064E3B;
+  --color-secondary-foreground: #FFFFFF;
+
+  --color-muted: #F3F4F6;
+  --color-muted-foreground: #6B7280;
+
+  --color-accent: #F97316;
+  --color-accent-foreground: #FFFFFF;
+
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #fafafa;
+
+  --color-border: #E5E7EB;
+  --color-input: #E5E7EB;
+  --color-ring: #115E59;
+
+  --color-chart-1: #115E59;
+  --color-chart-2: #F97316;
+  --color-chart-3: #064E3B;
+  --color-chart-4: #14B8A6;
+  --color-chart-5: #FB923C;
+
+  --color-sidebar: #064E3B;
+  --color-sidebar-foreground: #FFFFFF;
+  --color-sidebar-primary: #115E59;
+  --color-sidebar-primary-foreground: #FFFFFF;
+  --color-sidebar-accent: #115E59;
+  --color-sidebar-accent-foreground: #FFFFFF;
+  --color-sidebar-border: #115E59;
+  --color-sidebar-ring: #F97316;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-lg: 12px;
+  --radius-md: 10px;
+  --radius-sm: 8px;
+  --radius-pill: 9999px;
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
+  }
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-border);
+  }
+
+  :root {
+    --background: #F3F4F6;
+    --foreground: #111827;
+    --card: #ffffff;
+    --card-foreground: #111827;
+    --popover: #ffffff;
+    --popover-foreground: #111827;
+    --primary: #115E59;
+    --primary-foreground: #FFFFFF;
+    --secondary: #064E3B;
+    --secondary-foreground: #FFFFFF;
+    --muted: #F3F4F6;
+    --muted-foreground: #6B7280;
+    --accent: #F97316;
+    --accent-foreground: #FFFFFF;
+    --destructive: #ef4444;
+    --destructive-foreground: #fafafa;
+    --border: #E5E7EB;
+    --input: #E5E7EB;
+    --ring: #115E59;
+    --radius: 12px;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1 {
+    font-size: 64px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  h2 {
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    margin-bottom: 24px;
+  }
+
+  h3 {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 16px;
+  }
+
+  p {
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .font-nav {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .font-cta {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .btn-pill {
+    border-radius: var(--radius-pill);
+    padding: 0.5rem 1.5rem;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .section-padding {
+    padding-top: 120px;
+    padding-bottom: 120px;
+  }
+
+  .hero-overlay {
+    background: linear-gradient(rgba(0,0,0,0.5), transparent);
+  }
+}
