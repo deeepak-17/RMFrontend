@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
-import Link from "next/link";
+
+import { Link, useLocation } from "react-router-dom";
 import { Search, PlusSquare, History, User } from "lucide-react";
-import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -14,7 +13,7 @@ const navItems = [
 ];
 
 export const BottomNav = () => {
-  const pathname = usePathname();
+  const pathname = useLocation().pathname;
 
   // Don't show on landing page
   if (pathname === "/") return null;
@@ -28,7 +27,7 @@ export const BottomNav = () => {
           return (
             <li key={item.href}>
               <Link
-                href={item.href}
+                to={item.href}
                 className={cn(
                   "flex flex-col items-center gap-1 transition-colors duration-200",
                   isActive ? "text-primary" : "text-gray-400 hover:text-gray-600"

@@ -1,5 +1,5 @@
-import React from 'react';
-import Image from 'next/image';
+
+import { Image } from "@/components/ui/image";
 
 const sellingPoints = [
   {
@@ -31,7 +31,7 @@ const sellingPoints = [
  */
 export default function SellingPoints() {
   return (
-    <section 
+    <section
       className="bg-[#064E3B] text-white section-padding"
       aria-labelledby="selling-points-title"
     >
@@ -40,7 +40,7 @@ export default function SellingPoints() {
           <p className="font-nav text-[#F97316] mb-4 tracking-widest uppercase">
             Why use
           </p>
-          <h2 
+          <h2
             id="selling-points-title"
             className="text-[40px] md:text-[48px] font-extrabold leading-tight tracking-tight uppercase"
           >
@@ -50,7 +50,7 @@ export default function SellingPoints() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
           {sellingPoints.map((point, index) => (
-            <div 
+            <div
               key={index}
               className="group flex flex-col items-center text-center cursor-default"
             >
@@ -65,7 +65,7 @@ export default function SellingPoints() {
                   priority={index < 2}
                 />
               </div>
-              
+
               <h3 className="text-xl md:text-2xl font-bold leading-[1.3] px-4">
                 {point.title}
               </h3>

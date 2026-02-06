@@ -1,5 +1,5 @@
-import React from 'react';
-import Image from 'next/image';
+
+
 import { Facebook, Instagram, Twitter, Linkedin, Youtube, Globe, ChevronDown } from 'lucide-react';
 
 /**
@@ -99,26 +99,26 @@ const Footer = () => {
               Download
             </h3>
             <div className="flex flex-col space-y-3">
-              <a 
-                href="#" 
+              <a
+                href="#"
                 className="hover:opacity-80 transition-opacity max-w-[140px]"
                 aria-label="Download on the App Store"
               >
-                <img 
-                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/50a2a612-5acf-432e-95f7-7652884b81f4-toogoodtogo-com/assets/images/ceed6a2b4247d22d0e6f9425cad1d5c39af762fe-480x160-2.png" 
+                <img
+                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/50a2a612-5acf-432e-95f7-7652884b81f4-toogoodtogo-com/assets/images/ceed6a2b4247d22d0e6f9425cad1d5c39af762fe-480x160-2.png"
                   alt="App Store"
                   className="w-full h-auto object-contain"
                   width={140}
                   height={46}
                 />
               </a>
-              <a 
-                href="#" 
+              <a
+                href="#"
                 className="hover:opacity-80 transition-opacity max-w-[155px]"
                 aria-label="Get it on Google Play"
               >
-                <img 
-                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/50a2a612-5acf-432e-95f7-7652884b81f4-toogoodtogo-com/assets/images/68072d9f747a9e089548846cecc588ef52bb624e-540x160-3.png" 
+                <img
+                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/50a2a612-5acf-432e-95f7-7652884b81f4-toogoodtogo-com/assets/images/68072d9f747a9e089548846cecc588ef52bb624e-540x160-3.png"
                   alt="Google Play"
                   className="w-full h-auto object-contain"
                   width={155}
@@ -161,13 +161,13 @@ const Footer = () => {
           {/* Copyright */}
           <div className="text-center lg:text-right">
             <p className="text-[14px] m-0">
-              © {new Date().getFullYear()} ResQMeals. All rights reserved. 
+              © {new Date().getFullYear()} ResQMeals. All rights reserved.
               <span className="ml-2 block md:inline mt-2 md:mt-0">Fight food waste, save money, save the planet.</span>
             </p>
           </div>
         </div>
       </div>
-      
+
       {/* Decorative Branding Line */}
       <div className="w-full h-1 bg-[#F97316] mt-12"></div>
     </footer>

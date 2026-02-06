@@ -1,11 +1,11 @@
-import React from 'react';
-import Image from 'next/image';
+
+
 
 const HeroSection = () => {
   return (
     <section className="relative w-full min-h-[100svh] flex flex-col items-center justify-center overflow-hidden bg-[#064E3B]">
       {/* Background Video */}
-      <div 
+      <div
         className="absolute inset-0 w-full h-full z-0"
         data-v-97473711="" // Keeping the data attribute from computed styles perspective
       >
@@ -16,9 +16,9 @@ const HeroSection = () => {
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
         >
-          <source 
-            src="https://static-mkt.toogoodtogo.com/video/web_hero_en_us_1080.mp4" 
-            type="video/mp4" 
+          <source
+            src="https://static-mkt.toogoodtogo.com/video/web_hero_en_us_1080.mp4"
+            type="video/mp4"
           />
         </video>
         {/* Hero Overlay */}
@@ -29,7 +29,7 @@ const HeroSection = () => {
       <div className="container relative z-20 flex flex-col items-center text-center px-6">
         <div className="max-w-[1000px] flex flex-col items-center">
           {/* Main Headline */}
-          <h1 
+          <h1
             className="text-white text-[48px] md:text-[64px] font-extrabold leading-[1.1] tracking-[-0.02em] mb-6 animate-in fade-in slide-in-from-bottom-4 duration-1000"
             style={{
               textShadow: '0 2px 4px rgba(0,0,0,0.3)'
@@ -37,7 +37,7 @@ const HeroSection = () => {
           >
             Save good food from going to waste
           </h1>
-          
+
           {/* Tagline / Secondary headline mentioned in instructions */}
           <p className="text-white text-[18px] md:text-[22px] font-medium leading-[1.6] mb-10 max-w-2xl opacity-90">
             Save good food from going to waste. Our app is the world&apos;s largest marketplace for surplus food.
@@ -45,8 +45,8 @@ const HeroSection = () => {
 
           {/* App Store Badges (Placeholder behavior from High Level Design) */}
           <div className="flex flex-wrap justify-center gap-4 mt-4">
-            <a 
-              href="#" 
+            <a
+              href="#"
               className="inline-block transition-transform hover:scale-105 active:scale-95"
               aria-label="Download on the App Store"
             >
@@ -60,8 +60,8 @@ const HeroSection = () => {
                 </div>
               </div>
             </a>
-            <a 
-              href="#" 
+            <a
+              href="#"
               className="inline-block transition-transform hover:scale-105 active:scale-95"
               aria-label="Get it on Google Play"
             >

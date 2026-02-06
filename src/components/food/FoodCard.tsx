@@ -1,10 +1,10 @@
 "use client";
 
-import React from "react";
-import Image from "next/image";
+
+import { Image } from "@/components/ui/image";
 import { Clock, MapPin, Package } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 interface FoodCardProps {
   id: string;
@@ -27,7 +27,7 @@ export const FoodCard = ({
 }: FoodCardProps) => {
   return (
     <div className="bg-white rounded-[20px] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100 flex flex-col h-full">
-      <Link href={`/details/${id}`} className="relative h-48 w-full group overflow-hidden">
+      <Link to={`/details/${id}`} className="relative h-48 w-full group overflow-hidden">
         <Image
           src={image}
           alt={title}

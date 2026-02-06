@@ -1,5 +1,5 @@
-import React from 'react';
-import Image from 'next/image';
+
+import { Image } from "@/components/ui/image";
 
 /**
  * HowItWorks component clones the "How to use the app" section.
@@ -49,9 +49,8 @@ const HowItWorks = () => {
             return (
               <div
                 key={index}
-                className={`flex flex-col md:flex-row items-center gap-12 md:gap-24 ${
-                  isEven ? 'md:flex-row-reverse' : ''
-                }`}
+                className={`flex flex-col md:flex-row items-center gap-12 md:gap-24 ${isEven ? 'md:flex-row-reverse' : ''
+                  }`}
               >
                 {/* Image Container */}
                 <div className="w-full md:w-1/2 flex justify-center">
@@ -83,7 +82,7 @@ const HowItWorks = () => {
                       {item.description}
                     </h2>
                   </div>
-                  
+
                   {/* Action/Indicator for flow */}
                   <div className="flex items-center justify-center md:justify-start gap-4">
                     <div className="w-12 h-[2px] bg-[#F97316]" />
@@ -97,9 +96,9 @@ const HowItWorks = () => {
 
         {/* Bottom CTA Area - Optional context from High Level Design */}
         <div className="mt-24 text-center">
-            <button className="bg-[#F97316] hover:bg-[#EA580C] text-white font-bold py-4 px-10 rounded-full transition-all duration-300 transform hover:scale-105 shadow-xl">
-               Get Started Now
-            </button>
+          <button className="bg-[#F97316] hover:bg-[#EA580C] text-white font-bold py-4 px-10 rounded-full transition-all duration-300 transform hover:scale-105 shadow-xl">
+            Get Started Now
+          </button>
         </div>
       </div>
     </section>

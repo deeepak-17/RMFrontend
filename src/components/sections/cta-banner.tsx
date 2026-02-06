@@ -1,5 +1,5 @@
-import React from 'react';
-import Image from 'next/image';
+
+import { Image } from "@/components/ui/image";
 
 /**
  * CTABanner Component
@@ -48,7 +48,7 @@ const CTABanner = () => {
               {/* Hover effect stroke as per visual_effects_treatments */}
               <div className="absolute inset-0 rounded-full border-2 border-transparent group-hover:border-white/20 transition-all duration-300" />
             </a>
-            
+
             <a
               href="#"
               className="group relative inline-flex items-center justify-center bg-transparent border-2 border-white text-white font-cta px-10 py-[18px] rounded-full hover:bg-white hover:text-[#115E59] transition-all duration-300 ease-in-out min-w-[240px]"
@@ -61,8 +61,8 @@ const CTABanner = () => {
 
       {/* Optional organic mask shape if needed for pixel perfection - 
           based on "some images use organic mask shapes" in art direction */}
-      <div className="absolute bottom-[-2px] left-0 w-full h-12 bg-[#F3F4F6] clip-path-curve" 
-           style={{ clipPath: 'ellipse(70% 100% at 50% 100%)' }} />
+      <div className="absolute bottom-[-2px] left-0 w-full h-12 bg-[#F3F4F6] clip-path-curve"
+        style={{ clipPath: 'ellipse(70% 100% at 50% 100%)' }} />
     </section>
   );
 };

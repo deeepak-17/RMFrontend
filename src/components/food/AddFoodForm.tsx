@@ -1,10 +1,10 @@
 "use client";
 
-import React from "react";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { MapPin, Clock, Package, Image as ImageIcon } from "lucide-react";
 
 const formSchema = z.object({
@@ -100,7 +100,7 @@ export const AddFoodForm = () => {
         </div>
       </div>
 
-      <Button type="submit" variant="accent" className="w-full h-14 text-lg shadow-lg">
+      <Button type="submit" variant="default" className="w-full h-14 text-lg shadow-lg">
         Post Surplus Food
       </Button>
     </form>

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
+import { Image } from "@/components/ui/image";
 import { ChevronDown, Globe, ArrowRight } from "lucide-react";
 
 const navItems = [
@@ -24,9 +24,8 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
-        isScrolled ? "bg-[#064E3B] shadow-md py-4" : "bg-transparent py-6"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${isScrolled ? "bg-[#064E3B] shadow-md py-4" : "bg-transparent py-6"
+        }`}
     >
       <div className="container mx-auto px-6 flex items-center justify-between">
         {/* Left: Navigation Menu */}
@@ -98,24 +97,7 @@ const Header = () => {
         </div>
       </div>
 
-      <style jsx global>{`
-        .font-nav {
-          font-size: 14px;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-        .font-cta {
-          font-size: 14px;
-          font-weight: 600;
-          letter-spacing: 0.05em;
-        }
-        .btn-pill {
-          border-radius: 9999px;
-          padding: 0.6rem 1.4rem;
-          transition: all 0.3s ease-in-out;
-        }
-      `}</style>
+
     </header>
   );
 };

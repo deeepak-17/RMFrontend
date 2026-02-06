@@ -1,4 +1,3 @@
-import React from 'react';
 import { ArrowRight } from 'lucide-react';
 
 /**
@@ -34,7 +33,7 @@ const solutions = [
 
 export default function BusinessSolutions() {
   return (
-    <section className="bg-[#FFFFFF] text-[#111827] section-padding px-6 lg:px-0">
+    <section className="bg-[#FFFFFF] text-[#111827] py-[80px] md:py-[120px] px-6 lg:px-0">
       <div className="container mx-auto max-w-[1280px]">
         {/* Section Header */}
         <div className="mb-16 max-w-3xl">
@@ -49,8 +48,8 @@ export default function BusinessSolutions() {
         {/* Solutions Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-16">
           {solutions.map((solution, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className="flex flex-col h-full group transition-all duration-300"
             >
               <div className="flex flex-col flex-grow">
@@ -58,7 +57,7 @@ export default function BusinessSolutions() {
                 <h4 className="text-[14px] font-extrabold tracking-[0.1em] text-[#111827] mb-6 uppercase">
                   {solution.title}
                 </h4>
-                
+
                 {/* Description */}
                 <p className="text-[18px] font-normal leading-[1.6] text-[#111827] mb-8 flex-grow">
                   {solution.description}
@@ -73,8 +72,8 @@ export default function BusinessSolutions() {
                 <span className="text-[16px] font-bold text-[#115E59] border-b-2 border-transparent group-hover/link:border-[#115E59] transition-colors duration-300">
                   {solution.linkText}
                 </span>
-                <ArrowRight 
-                  className="w-5 h-5 text-[#115E59] transition-transform duration-300 group-hover/link:translate-x-1" 
+                <ArrowRight
+                  className="w-5 h-5 text-[#115E59] transition-transform duration-300 group-hover/link:translate-x-1"
                   strokeWidth={2.5}
                 />
               </a>
@@ -82,20 +81,6 @@ export default function BusinessSolutions() {
           ))}
         </div>
       </div>
-
-      <style jsx>{`
-        /* Local overrides for section padding as defined in high_level_design */
-        .section-padding {
-          padding-top: 120px;
-          padding-bottom: 120px;
-        }
-        @media (max-width: 768px) {
-          .section-padding {
-            padding-top: 80px;
-            padding-bottom: 80px;
-          }
-        }
-      `}</style>
     </section>
   );
 }
