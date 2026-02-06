@@ -1,104 +1,87 @@
-
-import { Image } from "@/components/ui/image";
-
-/**
- * HowItWorks component clones the "How to use the app" section.
- * It features an alternating grid layout with circular lifestyle images.
- * Theme: Dark (as specified in the prompt, focusing on the dark background/high-contrast sections).
- * Style: Inter font, 120px section padding, Forests Green and Mission Orange accents.
- */
+import { ClipboardList, MapPin, Truck, CheckCircle } from 'lucide-react';
 
 const steps = [
   {
     step: "Step one",
-    title: "How to use the app",
-    description: "Discover Surprise Bags available at stores and restaurants near you.",
-    image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/50a2a612-5acf-432e-95f7-7652884b81f4-toogoodtogo-com/assets/images/d0114e13d7e48fcc4bde9f6285b951b0f21a4cf6-2027x1789-5.jpg",
-    imageAlt: "Discover surplus food bags in the app",
+    title: "Post Surplus Food",
+    description: "Donors list their surplus food with photos, quantity, and pickup time. Our system validates food safety automatically.",
+    icon: ClipboardList,
   },
   {
     step: "Step two",
-    title: "How to use the app",
-    description: "Confirm your choice, reserve your food, and pay through the app.",
-    image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/50a2a612-5acf-432e-95f7-7652884b81f4-toogoodtogo-com/assets/images/96c5d7e9377df5ed45a570e28d00daf19fd58eb3-1326x1326-7.jpg",
-    imageAlt: "Confirm and pay for food bag",
+    title: "NGOs Find & Claim",
+    description: "Nearby NGOs and shelters receive notifications. They can view available donations on a map and claim what they need.",
+    icon: MapPin,
   },
   {
     step: "Step three",
-    title: "How to use the app",
-    description: "Head to the shop at the specified pickup time, swipe the app, and enjoy your food.",
-    image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/50a2a612-5acf-432e-95f7-7652884b81f4-toogoodtogo-com/assets/images/d0114e13d7e48fcc4bde9f6285b951b0f21a4cf6-2027x1789-8.jpg",
-    imageAlt: "Collection process in store",
+    title: "Volunteer Pickup",
+    description: "Volunteers are assigned to pick up the food and deliver it to the claiming NGO within the safety window.",
+    icon: Truck,
   },
   {
     step: "Step four",
-    title: "How to use the app",
-    description: "You've rescued good food from going to waste and done something good for the planet!",
-    image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/50a2a612-5acf-432e-95f7-7652884b81f4-toogoodtogo-com/assets/images/118bd1fc8cf8e36d803c6f9627d2181ed96850df-1128x1128-10.jpg",
-    imageAlt: "Enjoying the rescued food",
+    title: "Mission Complete",
+    description: "Food reaches those in need. Donors earn green credits, and everyone contributes to reducing food waste!",
+    icon: CheckCircle,
   }
 ];
 
 const HowItWorks = () => {
   return (
-    <section className="bg-[#064E3B] text-white py-[120px] overflow-hidden">
+    <section className="bg-white text-gray-900 py-[80px] md:py-[120px] overflow-hidden">
       <div className="container mx-auto px-6 max-w-[1280px]">
-        <div className="flex flex-col gap-[80px] md:gap-[120px]">
+        {/* Section Header */}
+        <div className="text-center mb-16 md:mb-24">
+          <p className="text-orange-500 mb-4 tracking-widest uppercase font-semibold">
+            Simple Process
+          </p>
+          <h2 className="text-[40px] md:text-[48px] font-extrabold leading-tight tracking-tight">
+            How ResQMeals Works
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {steps.map((item, index) => {
-            const isEven = index % 2 !== 0;
+            const Icon = item.icon;
             return (
               <div
                 key={index}
-                className={`flex flex-col md:flex-row items-center gap-12 md:gap-24 ${isEven ? 'md:flex-row-reverse' : ''
-                  }`}
+                className="relative flex flex-col items-center text-center p-6"
               >
-                {/* Image Container */}
-                <div className="w-full md:w-1/2 flex justify-center">
-                  <div className="relative w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] lg:w-[480px] lg:h-[480px]">
-                    <div className="absolute inset-0 rounded-full overflow-hidden border-[8px] border-[#115E59]">
-                      <Image
-                        src={item.image}
-                        alt={item.imageAlt}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 300px, 480px"
-                      />
-                    </div>
-                    {/* Decorative element or circle outline - mimicking the "Impact Branding" soft shapes */}
-                    <div className="absolute -z-10 -top-4 -left-4 w-full h-full rounded-full bg-white/5 blur-xl" />
-                  </div>
+                {/* Step Number */}
+                <div className="absolute -top-2 -left-2 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                  {index + 1}
                 </div>
 
-                {/* Text Content Container */}
-                <div className="w-full md:w-1/2 text-center md:text-left">
-                  <div className="mb-4">
-                    <span className="inline-block px-4 py-1.5 rounded-full bg-[#F97316] text-white font-cta uppercase tracking-wider text-xs mb-6">
-                      {item.step}
-                    </span>
-                    <h2 className="text-[32px] md:text-[48px] font-bold leading-[1.2] tracking-tight mb-6">
-                      <span className="block opacity-80 text-[20px] md:text-[24px] uppercase tracking-widest font-semibold mb-2">
-                        {item.title}
-                      </span>
-                      {item.description}
-                    </h2>
-                  </div>
-
-                  {/* Action/Indicator for flow */}
-                  <div className="flex items-center justify-center md:justify-start gap-4">
-                    <div className="w-12 h-[2px] bg-[#F97316]" />
-                    <span className="text-[#F97316] font-semibold text-lg">0{index + 1}</span>
-                  </div>
+                {/* Icon Container */}
+                <div className="w-20 h-20 bg-emerald-100 rounded-2xl flex items-center justify-center mb-6">
+                  <Icon className="w-10 h-10 text-emerald-600" strokeWidth={1.5} />
                 </div>
+
+                {/* Title & Description */}
+                <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  {item.description}
+                </p>
+
+                {/* Connector Line (not on last item) */}
+                {index < steps.length - 1 && (
+                  <div className="hidden lg:block absolute top-16 -right-4 w-8 h-0.5 bg-emerald-200" />
+                )}
               </div>
             );
           })}
         </div>
 
-        {/* Bottom CTA Area - Optional context from High Level Design */}
-        <div className="mt-24 text-center">
-          <button className="bg-[#F97316] hover:bg-[#EA580C] text-white font-bold py-4 px-10 rounded-full transition-all duration-300 transform hover:scale-105 shadow-xl">
-            Get Started Now
-          </button>
+        {/* Bottom CTA */}
+        <div className="mt-16 text-center">
+          <a
+            href="/register"
+            className="inline-flex items-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-10 rounded-full transition-all duration-300 transform hover:scale-105 shadow-xl"
+          >
+            Start Saving Food Today
+          </a>
         </div>
       </div>
     </section>
