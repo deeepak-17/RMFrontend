@@ -59,6 +59,12 @@ const Header = () => {
         <div className="flex items-center gap-4">
           <div className="hidden lg:flex items-center gap-4">
             <a
+              href="/admin/dashboard"
+              className="text-white font-bold hover:underline mr-4"
+            >
+              ADMIN DEMO
+            </a>
+            <a
               href="#"
               className="group flex items-center gap-2 border-2 border-white text-white font-cta btn-pill hover:bg-white hover:text-[#115E59]"
             >
