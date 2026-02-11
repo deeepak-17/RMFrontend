@@ -71,7 +71,7 @@ const Header = () => {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-emerald-900/95 backdrop-blur-sm border-t border-white/10">
-          <nav className="container mx-auto px-6 py-4 flex flex-col gap-4" role="navigation" aria-label="Mobile navigation">
+          <nav className="container mx-auto px-6 py-4 flex flex-col gap-4" aria-label="Mobile navigation">
             <a href="#how-it-works" className="text-white/80 hover:text-white py-2">
               How it Works
             </a>
