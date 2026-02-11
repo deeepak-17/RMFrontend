@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { Navbar } from "@/components/layout/Navbar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import Header from "@/components/sections/header";
@@ -10,21 +11,19 @@ import BusinessSolutions from "@/components/sections/business-solutions";
 import CTABanner from "@/components/sections/cta-banner";
 import Footer from "@/components/sections/footer";
 
-// Page imports
-import {
-    LoginPage,
-    RegisterPage,
-    DonorDashboard,
-    AddFoodPage,
-    DonorHistoryPage,
-    NgoDashboard,
-    NgoAvailablePage,
-    NgoHistoryPage,
-    VolunteerDashboard,
-    VolunteerTasksPage,
-    AdminDashboard,
-    AdminUsersPage,
-} from "@/pages";
+// Pages
+import LoginPage from '@/pages/LoginPage';
+import RegisterPage from '@/pages/RegisterPage';
+import DonorDashboard from '@/pages/donor/DonorDashboard';
+import AddFoodPage from '@/pages/donor/AddFoodPage';
+import DonorHistoryPage from '@/pages/donor/DonorHistoryPage';
+import NgoDashboard from '@/pages/ngo/NgoDashboard';
+import NgoAvailablePage from '@/pages/ngo/NgoAvailablePage';
+import NgoHistoryPage from '@/pages/ngo/NgoHistoryPage';
+import VolunteerDashboard from '@/pages/volunteer/VolunteerDashboard';
+import VolunteerTasksPage from '@/pages/volunteer/VolunteerTasksPage';
+import AdminDashboard from '@/pages/admin/AdminDashboard';
+import AdminUsersPage from '@/pages/admin/AdminUsersPage';
 
 function LandingPage() {
     return (
@@ -43,7 +42,7 @@ function LandingPage() {
     );
 }
 
-function Layout({ children }: { children: React.ReactNode }) {
+function AppLayout({ children }: { children: React.ReactNode }) {
     return (
         <div className="antialiased min-h-screen pb-20 md:pb-0 bg-background text-foreground">
             <Navbar />
@@ -53,34 +52,95 @@ function Layout({ children }: { children: React.ReactNode }) {
     );
 }
 
+// Protected route wrapper
+function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles?: string[] }) {
+    const { isAuthenticated, user, isLoading } = useAuth();
+
+    if (isLoading) {
+        return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    }
+
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace />;
+    }
+
+    if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+        return <Navigate to="/" replace />;
+    }
+
+    return children;
+}
+
 function App() {
     return (
-        <Router>
-            <Routes>
-                {/* Public routes */}
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
+        <AuthProvider>
+            <Router>
+                <Routes>
+                    {/* Public routes */}
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
 
-                {/* Donor routes - Member 3 */}
-                <Route path="/donor/dashboard" element={<Layout><DonorDashboard /></Layout>} />
-                <Route path="/donor/add" element={<Layout><AddFoodPage /></Layout>} />
-                <Route path="/donor/history" element={<Layout><DonorHistoryPage /></Layout>} />
+                    {/* Donor routes */}
+                    <Route path="/donor/dashboard" element={
+                        <ProtectedRoute allowedRoles={['donor']}>
+                            <AppLayout><DonorDashboard /></AppLayout>
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/donor/add" element={
+                        <ProtectedRoute allowedRoles={['donor']}>
+                            <AppLayout><AddFoodPage /></AppLayout>
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/donor/history" element={
+                        <ProtectedRoute allowedRoles={['donor']}>
+                            <AppLayout><DonorHistoryPage /></AppLayout>
+                        </ProtectedRoute>
+                    } />
 
-                {/* NGO routes */}
-                <Route path="/ngo/dashboard" element={<Layout><NgoDashboard /></Layout>} />
-                <Route path="/ngo/available" element={<Layout><NgoAvailablePage /></Layout>} />
-                <Route path="/ngo/history" element={<Layout><NgoHistoryPage /></Layout>} />
+                    {/* NGO routes */}
+                    <Route path="/ngo/dashboard" element={
+                        <ProtectedRoute allowedRoles={['ngo']}>
+                            <AppLayout><NgoDashboard /></AppLayout>
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/ngo/available" element={
+                        <ProtectedRoute allowedRoles={['ngo']}>
+                            <AppLayout><NgoAvailablePage /></AppLayout>
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/ngo/history" element={
+                        <ProtectedRoute allowedRoles={['ngo']}>
+                            <AppLayout><NgoHistoryPage /></AppLayout>
+                        </ProtectedRoute>
+                    } />
 
-                {/* Volunteer routes */}
-                <Route path="/volunteer/dashboard" element={<Layout><VolunteerDashboard /></Layout>} />
-                <Route path="/volunteer/tasks" element={<Layout><VolunteerTasksPage /></Layout>} />
+                    {/* Volunteer routes */}
+                    <Route path="/volunteer/dashboard" element={
+                        <ProtectedRoute allowedRoles={['volunteer']}>
+                            <AppLayout><VolunteerDashboard /></AppLayout>
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/volunteer/tasks" element={
+                        <ProtectedRoute allowedRoles={['volunteer']}>
+                            <AppLayout><VolunteerTasksPage /></AppLayout>
+                        </ProtectedRoute>
+                    } />
 
-                {/* Admin routes */}
-                <Route path="/admin/dashboard" element={<Layout><AdminDashboard /></Layout>} />
-                <Route path="/admin/users" element={<Layout><AdminUsersPage /></Layout>} />
-            </Routes>
-        </Router>
+                    {/* Admin routes */}
+                    <Route path="/admin/dashboard" element={
+                        <ProtectedRoute allowedRoles={['admin']}>
+                            <AppLayout><AdminDashboard /></AppLayout>
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/admin/users" element={
+                        <ProtectedRoute allowedRoles={['admin']}>
+                            <AppLayout><AdminUsersPage /></AppLayout>
+                        </ProtectedRoute>
+                    } />
+                </Routes>
+            </Router>
+        </AuthProvider>
     );
 }
 

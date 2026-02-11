@@ -1,68 +1,59 @@
+import { Link } from 'react-router-dom';
 
-import { Image } from "@/components/ui/image";
-
-/**
- * CTABanner Component
- * 
- * A high-impact call-to-action banner featuring a full-bleed background image
- * and bold mission-driven typography.
- * 
- * Heading: "JOIN OVER 180,000 BUSINESSES FIGHTING FOOD WASTE WITH US"
- * Theme: Dark (as specified in the parameters)
- */
 const CTABanner = () => {
-  // Asset link from provided <assets> tag
-  const backgroundImage = "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/50a2a612-5acf-432e-95f7-7652884b81f4-toogoodtogo-com/assets/images/c2bd0cf11024f15df0fd4ae5aeb8e390e7b52da6-2400x1200-13.jpg";
-
   return (
-    <section className="relative w-full overflow-hidden bg-[#064E3B]">
-      {/* Background Image Container */}
-      <div className="absolute inset-0 w-full h-full">
-        <Image
-          src={backgroundImage}
-          alt="Businesses fighting food waste"
-          fill
-          priority
-          className="object-cover object-center opacity-60"
-          sizes="100vw"
-        />
-        {/* Dark overlay for text readability as per design instructions (hero-overlay) */}
-        <div className="absolute inset-0 bg-black/40" />
-      </div>
+    <section className="relative w-full overflow-hidden bg-gradient-to-br from-emerald-800 via-emerald-700 to-teal-700">
+      {/* Decorative elements */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-400/10 rounded-full blur-3xl" />
 
       {/* Content Container */}
-      <div className="container relative z-10 flex flex-col items-center justify-center min-h-[500px] md:min-h-[600px] text-center px-6 py-20">
-        <div className="max-w-[1000px] space-y-8">
+      <div className="container relative z-10 flex flex-col items-center justify-center min-h-[400px] md:min-h-[500px] text-center px-6 py-20">
+        <div className="max-w-[900px] space-y-8">
+          {/* Impact Stats */}
+          <div className="flex justify-center gap-8 md:gap-16 mb-8">
+            <div className="text-center">
+              <p className="text-4xl md:text-5xl font-bold text-white">10K+</p>
+              <p className="text-emerald-200 text-sm">Meals Saved</p>
+            </div>
+            <div className="text-center">
+              <p className="text-4xl md:text-5xl font-bold text-white">5T</p>
+              <p className="text-emerald-200 text-sm">CO₂ Prevented</p>
+            </div>
+            <div className="text-center">
+              <p className="text-4xl md:text-5xl font-bold text-white">500+</p>
+              <p className="text-emerald-200 text-sm">Partners</p>
+            </div>
+          </div>
+
           {/* Main Heading */}
-          <h2 className="text-white text-[32px] md:text-[48px] lg:text-[56px] font-extrabold leading-[1.1] tracking-[-0.02em] uppercase">
-            JOIN OVER 180,000 BUSINESSES FIGHTING FOOD WASTE WITH US
+          <h2 className="text-white text-[28px] md:text-[42px] lg:text-[48px] font-extrabold leading-[1.2] tracking-[-0.02em]">
+            Ready to Make a Difference?
+            <span className="block text-orange-400">Join ResQMeals Today</span>
           </h2>
 
-          {/* CTA Buttons - Using pill-shape styling from design system */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <a
-              href="#"
-              className="group relative inline-flex items-center justify-center bg-[#F97316] hover:bg-[#EA580C] text-white font-cta px-10 py-5 rounded-full transition-all duration-300 ease-in-out min-w-[240px]"
-            >
-              <span className="relative z-10">BECOME A PARTNER</span>
-              {/* Hover effect stroke as per visual_effects_treatments */}
-              <div className="absolute inset-0 rounded-full border-2 border-transparent group-hover:border-white/20 transition-all duration-300" />
-            </a>
+          <p className="text-emerald-100 text-lg max-w-xl mx-auto">
+            Every meal you rescue feeds someone in need and helps the planet. Start your impact journey now.
+          </p>
 
-            <a
-              href="#"
-              className="group relative inline-flex items-center justify-center bg-transparent border-2 border-white text-white font-cta px-10 py-[18px] rounded-full hover:bg-white hover:text-[#115E59] transition-all duration-300 ease-in-out min-w-[240px]"
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+            <Link
+              to="/register"
+              className="group relative inline-flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white font-bold px-10 py-5 rounded-full transition-all duration-300 ease-in-out min-w-[240px] shadow-xl"
             >
-              LEARN MORE
-            </a>
+              Get Started Free
+            </Link>
+
+            <Link
+              to="/login"
+              className="group relative inline-flex items-center justify-center bg-transparent border-2 border-white text-white font-bold px-10 py-[18px] rounded-full hover:bg-white hover:text-emerald-700 transition-all duration-300 ease-in-out min-w-[240px]"
+            >
+              Sign In
+            </Link>
           </div>
         </div>
       </div>
-
-      {/* Optional organic mask shape if needed for pixel perfection - 
-          based on "some images use organic mask shapes" in art direction */}
-      <div className="absolute bottom-[-2px] left-0 w-full h-12 bg-[#F3F4F6] clip-path-curve"
-        style={{ clipPath: 'ellipse(70% 100% at 50% 100%)' }} />
     </section>
   );
 };
