@@ -130,6 +130,27 @@ interface Donation {
     servingsCount: number;
 }
 
+// Helper functions
+const getTimeRemaining = (expiryTime: string) => {
+    const now = new Date();
+    const expiry = new Date(expiryTime);
+    const diffMs = expiry.getTime() - now.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (diffHours <= 0 && diffMins <= 0) return 'Expired';
+    if (diffHours === 0) return `${diffMins}m left`;
+    return `${diffHours}h ${diffMins}m left`;
+};
+
+const isUrgent = (expiryTime: string) => {
+    const now = new Date();
+    const expiry = new Date(expiryTime);
+    const diffMs = expiry.getTime() - now.getTime();
+    const diffHours = diffMs / (1000 * 60 * 60);
+    return diffHours <= 2;
+};
+
 export default function NgoAvailablePage() {
     const [donations, setDonations] = useState<Donation[]>(mockDonations);
     const [isLoading] = useState(false);
@@ -145,26 +166,6 @@ export default function NgoAvailablePage() {
         //   setDonations(response.data.data);
         // });
     }, []);
-
-    const getTimeRemaining = (expiryTime: string) => {
-        const now = new Date();
-        const expiry = new Date(expiryTime);
-        const diffMs = expiry.getTime() - now.getTime();
-        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-        const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-
-        if (diffHours <= 0 && diffMins <= 0) return 'Expired';
-        if (diffHours === 0) return `${diffMins}m left`;
-        return `${diffHours}h ${diffMins}m left`;
-    };
-
-    const isUrgent = (expiryTime: string) => {
-        const now = new Date();
-        const expiry = new Date(expiryTime);
-        const diffMs = expiry.getTime() - now.getTime();
-        const diffHours = diffMs / (1000 * 60 * 60);
-        return diffHours <= 2;
-    };
 
     const handleClaim = async (donationId: string) => {
         setClaimingId(donationId);
