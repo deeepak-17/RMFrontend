@@ -9,7 +9,7 @@
  * - Claim donations
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -130,6 +130,27 @@ interface Donation {
     servingsCount: number;
 }
 
+// Helper functions
+const getTimeRemaining = (expiryTime: string) => {
+    const now = new Date();
+    const expiry = new Date(expiryTime);
+    const diffMs = expiry.getTime() - now.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (diffHours <= 0 && diffMins <= 0) return 'Expired';
+    if (diffHours === 0) return `${diffMins}m left`;
+    return `${diffHours}h ${diffMins}m left`;
+};
+
+const isUrgent = (expiryTime: string) => {
+    const now = new Date();
+    const expiry = new Date(expiryTime);
+    const diffMs = expiry.getTime() - now.getTime();
+    const diffHours = diffMs / (1000 * 60 * 60);
+    return diffHours <= 2;
+};
+
 export default function NgoAvailablePage() {
     const [donations, setDonations] = useState<Donation[]>(mockDonations);
     const [isLoading] = useState(false);
@@ -146,26 +167,6 @@ export default function NgoAvailablePage() {
         // });
     }, []);
 
-    const getTimeRemaining = (expiryTime: string) => {
-        const now = new Date();
-        const expiry = new Date(expiryTime);
-        const diffMs = expiry.getTime() - now.getTime();
-        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-        const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-
-        if (diffHours <= 0 && diffMins <= 0) return 'Expired';
-        if (diffHours === 0) return `${diffMins}m left`;
-        return `${diffHours}h ${diffMins}m left`;
-    };
-
-    const isUrgent = (expiryTime: string) => {
-        const now = new Date();
-        const expiry = new Date(expiryTime);
-        const diffMs = expiry.getTime() - now.getTime();
-        const diffHours = diffMs / (1000 * 60 * 60);
-        return diffHours <= 2;
-    };
-
     const handleClaim = async (donationId: string) => {
         setClaimingId(donationId);
         // TODO: Call API - donationsApi.accept(donationId)
@@ -179,14 +180,16 @@ export default function NgoAvailablePage() {
         setSelectedDonation(null);
     };
 
-    const sortedDonations = [...donations].sort((a, b) => {
-        // Sort by urgency first, then by distance
-        const aUrgent = isUrgent(a.expiryTime);
-        const bUrgent = isUrgent(b.expiryTime);
-        if (aUrgent && !bUrgent) return -1;
-        if (!aUrgent && bUrgent) return 1;
-        return a.location.distance - b.location.distance;
-    });
+    const sortedDonations = useMemo(() => {
+        return [...donations].sort((a, b) => {
+            // Sort by urgency first, then by distance
+            const aUrgent = isUrgent(a.expiryTime);
+            const bUrgent = isUrgent(b.expiryTime);
+            if (aUrgent && !bUrgent) return -1;
+            if (!aUrgent && bUrgent) return 1;
+            return a.location.distance - b.location.distance;
+        });
+    }, [donations]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
