@@ -9,7 +9,7 @@
  * - Claim donations
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -179,14 +179,16 @@ export default function NgoAvailablePage() {
         setSelectedDonation(null);
     };
 
-    const sortedDonations = [...donations].sort((a, b) => {
-        // Sort by urgency first, then by distance
-        const aUrgent = isUrgent(a.expiryTime);
-        const bUrgent = isUrgent(b.expiryTime);
-        if (aUrgent && !bUrgent) return -1;
-        if (!aUrgent && bUrgent) return 1;
-        return a.location.distance - b.location.distance;
-    });
+    const sortedDonations = useMemo(() => {
+        return [...donations].sort((a, b) => {
+            // Sort by urgency first, then by distance
+            const aUrgent = isUrgent(a.expiryTime);
+            const bUrgent = isUrgent(b.expiryTime);
+            if (aUrgent && !bUrgent) return -1;
+            if (!aUrgent && bUrgent) return 1;
+            return a.location.distance - b.location.distance;
+        });
+    }, [donations]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
