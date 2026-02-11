@@ -68,7 +68,7 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode;
         return <Navigate to="/" replace />;
     }
 
-    return <>{children}</>;
+    return children;
 }
 
 function App() {
