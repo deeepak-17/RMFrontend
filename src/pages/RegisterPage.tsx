@@ -35,8 +35,9 @@ export default function RegisterPage() {
 
         try {
             await register(name, email, password, role);
-            // TODO: Redirect based on user role
-            navigate('/');
+            // Redirect to role-based dashboard
+            const tokenPayload = JSON.parse(atob(localStorage.getItem('token')!.split('.')[1]));
+            navigate(`/${tokenPayload.role}/dashboard`);
         } catch (err: any) {
             setError(err.response?.data?.message || 'Registration failed');
         } finally {

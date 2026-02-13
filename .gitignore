@@ -41,3 +41,4 @@ bun.lock
 # AI agent context (local only)
 AGENTS.md
 dist/
+.env

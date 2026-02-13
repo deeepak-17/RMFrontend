@@ -33,8 +33,9 @@ export default function LoginPage() {
 
         try {
             await login(email, password);
-            // TODO: Redirect based on user role
-            navigate('/');
+            // Redirect to role-based dashboard
+            const tokenPayload = JSON.parse(atob(localStorage.getItem('token')!.split('.')[1]));
+            navigate(`/${tokenPayload.role}/dashboard`);
         } catch (err: any) {
             setError(err.response?.data?.message || 'Login failed');
         } finally {
