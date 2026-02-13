@@ -1,33 +1,24 @@
 import { ArrowRight } from 'lucide-react';
-
-/**
- * BusinessSolutions Component
- * Clones the "Our Business solutions" section with pixel-perfect accuracy.
- * Theme: Dark (as specified in the tag, though the UI itself is a light-themed section)
- * 
- * Note: Even though the theme is 'dark', based on the design instructions 
- * and high-level design, this specific section sits on a clean white 
- * background (#F3F4F6 or #FFFFFF) as part of the page's modular structure.
- */
+import { Link } from 'react-router-dom';
 
 const solutions = [
   {
-    title: 'SURPRISE BAGS',
-    description: "Unlock revenue from surplus food: Sell your unsold food in 'Surprise Bags' through the ResQMeals app, for users to come collect in-store at a pre-determined time.",
-    linkText: 'Become a partner',
-    href: '#',
+    title: 'FOR RESTAURANTS & CANTEENS',
+    description: "Turn your surplus food into impact. Post leftover meals from your kitchen and let nearby NGOs claim them. Earn sustainability credits and reduce your waste disposal costs.",
+    linkText: 'Register as Donor',
+    href: '/register',
   },
   {
-    title: 'RESQMEALS PLATFORM',
-    description: 'Your end-to-end surplus food management solution: Modular software that helps retailers seamlessly track, manage and redistribute surplus food.',
-    linkText: 'Learn more',
-    href: '#',
+    title: 'FOR NGOs & SHELTERS',
+    description: 'Access fresh, quality meals for your community. Get notified when donors near you post available food. Claim, coordinate pickup, and serve those in need.',
+    linkText: 'Register as NGO',
+    href: '/register',
   },
   {
-    title: 'DATE LABELING INITIATIVE',
-    description: "Reduce waste in households: Join a coalition of the world's leading brands with our bespoke 'Look-Smell-Taste' label printed on billions of Best Before products.",
-    linkText: 'Learn more',
-    href: '#',
+    title: 'FOR VOLUNTEERS',
+    description: "Be the bridge between surplus and need. Pick up food from donors and deliver to NGOs. Every delivery makes a real difference in someone's life.",
+    linkText: 'Join as Volunteer',
+    href: '/register',
   },
 ];
 
@@ -37,11 +28,11 @@ export default function BusinessSolutions() {
       <div className="container mx-auto max-w-[1280px]">
         {/* Section Header */}
         <div className="mb-16 max-w-3xl">
-          <h2 className="text-[48px] font-bold leading-[1.2] tracking-[-0.01em] mb-6 text-[#111827]">
-            Our Business solutions
+          <h2 className="text-[40px] md:text-[48px] font-bold leading-[1.2] tracking-[-0.01em] mb-6 text-[#111827]">
+            Join the Movement
           </h2>
-          <p className="text-[20px] font-normal leading-relaxed text-[#5F6D6D]">
-            We offer a range of solutions to empower the world&apos;s leading food distributors to avoid good food from going to waste.
+          <p className="text-[18px] md:text-[20px] font-normal leading-relaxed text-[#5F6D6D]">
+            Whether you have surplus food to share or communities to serve, ResQMeals connects you with the right people to make an impact.
           </p>
         </div>
 
@@ -50,11 +41,11 @@ export default function BusinessSolutions() {
           {solutions.map((solution, index) => (
             <div
               key={index}
-              className="flex flex-col h-full group transition-all duration-300"
+              className="flex flex-col h-full group transition-all duration-300 p-6 rounded-2xl hover:bg-emerald-50"
             >
               <div className="flex flex-col flex-grow">
                 {/* Title */}
-                <h4 className="text-[14px] font-extrabold tracking-[0.1em] text-[#111827] mb-6 uppercase">
+                <h4 className="text-[14px] font-extrabold tracking-[0.1em] text-emerald-600 mb-6 uppercase">
                   {solution.title}
                 </h4>
 
@@ -65,18 +56,18 @@ export default function BusinessSolutions() {
               </div>
 
               {/* Link */}
-              <a
-                href={solution.href}
+              <Link
+                to={solution.href}
                 className="inline-flex items-center gap-2 group/link w-fit"
               >
-                <span className="text-[16px] font-bold text-[#115E59] border-b-2 border-transparent group-hover/link:border-[#115E59] transition-colors duration-300">
+                <span className="text-[16px] font-bold text-emerald-600 border-b-2 border-transparent group-hover/link:border-emerald-600 transition-colors duration-300">
                   {solution.linkText}
                 </span>
                 <ArrowRight
-                  className="w-5 h-5 text-[#115E59] transition-transform duration-300 group-hover/link:translate-x-1"
+                  className="w-5 h-5 text-emerald-600 transition-transform duration-300 group-hover/link:translate-x-1"
                   strokeWidth={2.5}
                 />
-              </a>
+              </Link>
             </div>
           ))}
         </div>
