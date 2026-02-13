@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ArrowRight, Globe, ChevronDown } from "lucide-react";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -57,15 +57,55 @@ const Header = () => {
           </Link>
         </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="md:hidden text-white p-2"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label="Toggle menu"
-          aria-expanded={isMobileMenuOpen}
-        >
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        {/* Right: Actions */}
+        <div className="flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-4">
+            <a
+              href="/admin/dashboard"
+              className="text-white font-bold hover:underline mr-4"
+            >
+              ADMIN DEMO
+            </a>
+            <a
+              href="#"
+              className="group flex items-center gap-2 border-2 border-white text-white font-cta btn-pill hover:bg-white hover:text-[#115E59]"
+            >
+              DOWNLOAD THE APP
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </a>
+            <div className="flex flex-col items-center">
+              <a
+                href="#"
+                className="group flex items-center gap-2 border-2 border-white text-white font-cta btn-pill hover:bg-white hover:text-[#115E59]"
+              >
+                BUSINESS SIGN-UP
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </a>
+              <a
+                href="#"
+                className="text-[10px] text-white/80 uppercase font-semibold mt-1 hover:underline tracking-widest"
+              >
+                MyStore login
+              </a>
+            </div>
+          </div>
+
+          {/* Language Selector */}
+          <button className="flex items-center gap-1 text-white hover:opacity-80 transition-opacity ml-2">
+            <Globe className="w-5 h-5" />
+            <ChevronDown className="w-3 h-3" />
+          </button>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden text-white p-2"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle menu"
+            aria-expanded={isMobileMenuOpen}
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}

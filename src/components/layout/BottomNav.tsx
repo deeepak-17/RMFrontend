@@ -2,14 +2,14 @@
 
 
 import { Link, useLocation } from "react-router-dom";
-import { Search, PlusSquare, History, User } from "lucide-react";
+import { LayoutDashboard, Users, ClipboardList, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { name: "Discover", href: "/feed", icon: Search },
-  { name: "Post Food", href: "/add", icon: PlusSquare },
-  { name: "My Pickups", href: "/pickups", icon: History },
-  { name: "Profile", href: "/profile", icon: User },
+  { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+  { name: "Users", href: "/admin/users", icon: Users },
+  { name: "Logs", href: "/admin/logs", icon: ClipboardList },
+  { name: "Profile", href: "/profile", icon: Settings },
 ];
 
 export const BottomNav = () => {
