@@ -19,6 +19,9 @@ import {
     AdminDashboard,
     AdminUsersPage,
     AdminLogsPage,
+    DonorDashboard,
+    NgoDashboard,
+    VolunteerDashboard,
 } from "@/pages";
 
 function LandingPage() {
@@ -92,6 +95,27 @@ function App() {
                     <Route path="/admin/logs" element={
                         <ProtectedRoute allowedRoles={['admin']}>
                             <AdminLayout><AdminLogsPage /></AdminLayout>
+                        </ProtectedRoute>
+                    } />
+
+                    {/* Donor routes */}
+                    <Route path="/donor/dashboard" element={
+                        <ProtectedRoute allowedRoles={['donor']}>
+                            <AppLayout><DonorDashboard /></AppLayout>
+                        </ProtectedRoute>
+                    } />
+
+                    {/* NGO routes */}
+                    <Route path="/ngo/dashboard" element={
+                        <ProtectedRoute allowedRoles={['ngo']}>
+                            <AppLayout><NgoDashboard /></AppLayout>
+                        </ProtectedRoute>
+                    } />
+
+                    {/* Volunteer routes */}
+                    <Route path="/volunteer/dashboard" element={
+                        <ProtectedRoute allowedRoles={['volunteer']}>
+                            <AppLayout><VolunteerDashboard /></AppLayout>
                         </ProtectedRoute>
                     } />
                 </Routes>
