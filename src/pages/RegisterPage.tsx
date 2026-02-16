@@ -23,6 +23,7 @@ export default function RegisterPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [role, setRole] = useState('donor');
+    const [organizationType, setOrganizationType] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { register } = useAuth();
@@ -34,7 +35,8 @@ export default function RegisterPage() {
         setIsLoading(true);
 
         try {
-            await register(name, email, password, role);
+            // Only send organizationType if it has a value (for donors)
+            await register(name, email, password, role, organizationType || undefined);
             // Redirect to role-based dashboard
             const tokenPayload = JSON.parse(atob(localStorage.getItem('token')!.split('.')[1]));
             navigate(`/${tokenPayload.role}/dashboard`);
@@ -110,6 +112,25 @@ export default function RegisterPage() {
                                 <option value="volunteer">Volunteer</option>
                             </select>
                         </div>
+
+                        {role === 'donor' && (
+                            <div className="space-y-2">
+                                <Label htmlFor="organizationType">Organization Type</Label>
+                                <select
+                                    id="organizationType"
+                                    value={organizationType}
+                                    onChange={(e) => setOrganizationType(e.target.value)}
+                                    className="w-full p-2 border rounded-md"
+                                    required
+                                >
+                                    <option value="">Select organization type...</option>
+                                    <option value="restaurant">Restaurant</option>
+                                    <option value="canteen">Canteen</option>
+                                    <option value="event">Event Hall</option>
+                                    <option value="individual">Individual</option>
+                                </select>
+                            </div>
+                        )}
 
                         <Button type="submit" className="w-full" disabled={isLoading}>
                             {isLoading ? 'Creating account...' : 'Create Account'}
