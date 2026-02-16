@@ -1,5 +1,3 @@
-
-
 const MissionStatement = () => {
   return (
     <section
@@ -12,14 +10,15 @@ const MissionStatement = () => {
           id="mission-title"
           className="text-[#14B8A6] font-display text-[32px] md:text-[48px] font-bold leading-[1.2] tracking-[-0.01em] mb-6 max-w-[1000px] mx-auto"
         >
-          Too Good To Go is a social impact company on a mission to inspire and empower everyone to fight food waste together.
+          ResQMeals is on a mission to end food waste while feeding communities that need it most.
         </h2>
 
         {/* Descriptive Paragraph */}
         <p
           className="text-white font-sans text-[18px] md:text-[20px] font-normal leading-[1.6] max-w-[800px] mx-auto opacity-90"
         >
-          Our app is the world&apos;s largest marketplace for surplus food. We help users rescue good food from going to waste, offering great value for money at local stores, cafes and restaurants.
+          We connect restaurants, corporate canteens, and event organizers with local NGOs and shelters.
+          Every meal rescued is a step toward a hunger-free, sustainable future.
         </p>
       </div>
     </section>

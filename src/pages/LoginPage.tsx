@@ -10,8 +10,8 @@
  * - Show error messages on failure
  */
 
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,9 +22,19 @@ export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.message) {
+            setSuccessMessage(location.state.message);
+            // Clear message from state so it doesn't persist on refresh
+            window.history.replaceState({}, document.title);
+        }
+    }, [location]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -33,8 +43,9 @@ export default function LoginPage() {
 
         try {
             await login(email, password);
-            // TODO: Redirect based on user role
-            navigate('/');
+            // Redirect to role-based dashboard
+            const tokenPayload = JSON.parse(atob(localStorage.getItem('token')!.split('.')[1]));
+            navigate(`/${tokenPayload.role}/dashboard`);
         } catch (err: any) {
             setError(err.response?.data?.message || 'Login failed');
         } finally {
@@ -51,6 +62,12 @@ export default function LoginPage() {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
+                        {successMessage && (
+                            <div className="p-3 text-sm text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-lg animate-in fade-in slide-in-from-top-1">
+                                {successMessage}
+                            </div>
+                        )}
+
                         {error && (
                             <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg">
                                 {error}
