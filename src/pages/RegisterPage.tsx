@@ -26,7 +26,7 @@ export default function RegisterPage() {
     const [organizationType, setOrganizationType] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const { register } = useAuth();
+    const { register, logout } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -35,20 +35,27 @@ export default function RegisterPage() {
         setIsLoading(true);
 
         try {
-            // Only send organizationType if it has a value (for donors)
             await register(name, email, password, role, organizationType || undefined);
-            // Redirect to role-based dashboard
-            const tokenPayload = JSON.parse(atob(localStorage.getItem('token')!.split('.')[1]));
-            navigate(`/${tokenPayload.role}/dashboard`);
+            // Clear auto-login state to force manual login as per user request
+            logout();
+            navigate('/login', {
+                state: { message: 'Account created successfully! Please sign in with your new credentials.' }
+            });
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Registration failed');
+            console.error('Registration error:', err.response?.data);
+            const backendError = err.response?.data;
+            if (backendError?.errors && Array.isArray(backendError.errors)) {
+                setError(backendError.errors[0].msg);
+            } else {
+                setError(backendError?.message || 'Registration failed. Please check your details.');
+            }
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4">
+        <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4 py-8">
             <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
                     <CardTitle className="text-2xl font-bold text-emerald-600">Join ResQMeals</CardTitle>
@@ -57,7 +64,7 @@ export default function RegisterPage() {
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         {error && (
-                            <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg">
+                            <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg animate-in fade-in slide-in-from-top-1">
                                 {error}
                             </div>
                         )}
@@ -95,8 +102,10 @@ export default function RegisterPage() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
-                                minLength={6}
                             />
+                            <p className="text-[10px] text-gray-500 leading-tight">
+                                Must be at least 8 characters with an uppercase letter, number, and special character.
+                            </p>
                         </div>
 
                         <div className="space-y-2">

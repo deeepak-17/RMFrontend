@@ -70,14 +70,42 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode;
     return children;
 }
 
+// Role-based redirection for the root path
+function RoleRedirect() {
+    const { isAuthenticated, user, isLoading } = useAuth();
+
+    if (isLoading) {
+        return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    }
+
+    if (!isAuthenticated) {
+        return <LandingPage />;
+    }
+
+    // Redirect to respective dashboard based on role
+    switch (user?.role) {
+        case 'admin':
+            return <Navigate to="/admin/dashboard" replace />;
+        case 'donor':
+            return <Navigate to="/donor/dashboard" replace />;
+        case 'ngo':
+            return <Navigate to="/ngo/dashboard" replace />;
+        case 'volunteer':
+            return <Navigate to="/volunteer/dashboard" replace />;
+        default:
+            return <LandingPage />;
+    }
+}
+
 function App() {
     return (
         <AuthProvider>
             <Router>
                 <Routes>
                     {/* Public routes */}
-                    <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+                    <Route path="/" element={<LandingPage />} />
                     <Route path="/landing" element={<LandingPage />} />
+                    <Route path="/dashboard" element={<RoleRedirect />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/register" element={<RegisterPage />} />
 
