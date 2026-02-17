@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authApi } from '@/lib/api';
+import { socketService } from '@/lib/socket';
 import type { User } from '@/types';
 
 interface AuthContextType {
@@ -27,14 +28,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     const response = await authApi.getMe();
                     setUser(response.data.data);
                     setToken(savedToken);
+                    // Connect Socket.io after successful auth
+                    socketService.connect(savedToken);
                 } catch {
                     localStorage.removeItem('token');
                     setToken(null);
+                    socketService.disconnect();
                 }
             }
             setIsLoading(false);
         };
         initAuth();
+
+        // Cleanup: disconnect socket on unmount
+        return () => socketService.disconnect();
     }, []);
 
     const login = async (email: string, password: string) => {
@@ -43,6 +50,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('token', token);
         setToken(token);
         setUser(user);
+        // Connect Socket.io on login
+        socketService.connect(token);
     };
 
     const register = async (name: string, email: string, password: string, role: string, organizationType?: string) => {
@@ -57,6 +66,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem('token');
         setToken(null);
         setUser(null);
+        // Disconnect Socket.io on logout
+        socketService.disconnect();
     };
 
     return (
