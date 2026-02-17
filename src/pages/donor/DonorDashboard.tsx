@@ -16,6 +16,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, History, TrendingUp, Loader2, Clock, MapPin } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { donationsApi } from '@/lib/api';
+import { socketService } from '@/lib/socket';
+import { toast } from 'sonner';
 import type { FoodDonation } from '@/types';
 
 // Status badge component
@@ -65,6 +67,30 @@ export default function DonorDashboard() {
         };
 
         fetchData();
+    }, []);
+
+    // Socket.io real-time notifications
+    useEffect(() => {
+        const handleDonationReserved = () => {
+            toast.success('🎉 Your donation was accepted by an NGO!', {
+                description: 'A volunteer will pick it up soon',
+                duration: 5000
+            });
+        };
+
+        const handleDonationCollected = () => {
+            toast.success('✅ Donation picked up successfully!', {
+                duration: 5000
+            });
+        };
+
+        socketService.on('donation:reserved', handleDonationReserved);
+        socketService.on('donation:collected', handleDonationCollected);
+
+        return () => {
+            socketService.off('donation:reserved', handleDonationReserved);
+            socketService.off('donation:collected', handleDonationCollected);
+        };
     }, []);
 
     return (
