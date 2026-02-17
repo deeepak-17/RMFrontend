@@ -258,15 +258,17 @@ export default function NgoDashboard() {
                                     </div>
                                 </Link>
 
-                                <div className="flex items-center gap-4 p-4 bg-purple-50 rounded-lg">
-                                    <div className="p-2 bg-purple-200 rounded-lg">
-                                        <TrendingUp className="w-5 h-5 text-purple-700" />
+                                <Link to="/ngo/history" className="block text-inherit no-underline">
+                                    <div className="flex items-center gap-4 p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors cursor-pointer">
+                                        <div className="p-2 bg-purple-200 rounded-lg">
+                                            <TrendingUp className="w-5 h-5 text-purple-700" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-semibold text-purple-900">Impact Report</h4>
+                                            <p className="text-xs text-purple-700">View your collection impact</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h4 className="font-semibold text-purple-900">Impact Report</h4>
-                                        <p className="text-xs text-purple-700">Coming soon...</p>
-                                    </div>
-                                </div>
+                                </Link>
                             </CardContent>
                         </Card>
                     </div>

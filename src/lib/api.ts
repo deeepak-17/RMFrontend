@@ -47,7 +47,7 @@ export const donationsApi = {
     create: (data: FormData) => api.post('/donations', data),
     getMyDonations: () => api.get('/donations/my'),
     getNearby: (lat: number, lng: number, radius?: number) =>
-        api.get(`/donations/nearby?lat=${lat}&lng=${lng}&radius=${radius || 10}`),
+        api.get(`/ngo/donations/nearby?lat=${lat}&lng=${lng}&radius=${radius || 10}`),
     getById: (id: string) => api.get(`/donations/${id}`),
     update: (id: string, data: any) => api.put(`/donations/${id}`, data),
     delete: (id: string) => api.delete(`/donations/${id}`),
