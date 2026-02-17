@@ -119,6 +119,7 @@ export default function RegisterPage() {
                                 <option value="donor">Food Donor (Restaurant/Canteen)</option>
                                 <option value="ngo">NGO / Shelter</option>
                                 <option value="volunteer">Volunteer</option>
+                                <option value="admin">Administrator</option>
                             </select>
                         </div>
 

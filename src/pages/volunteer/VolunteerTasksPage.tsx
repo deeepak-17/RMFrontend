@@ -14,26 +14,59 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, MapPin, Package, Check } from 'lucide-react';
+import { ArrowLeft, MapPin, Package, Check, Loader2 } from 'lucide-react';
 import type { PickupTask } from '@/types';
+import { tasksApi } from '@/lib/api';
 
 export default function VolunteerTasksPage() {
-    const [tasks, _setTasks] = useState<PickupTask[]>([]);
+    const [tasks, setTasks] = useState<PickupTask[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+    const fetchTasks = async () => {
+        try {
+            setIsLoading(true);
+            const response = await tasksApi.getMyTasks();
+            console.log('Volunteer tasks response:', response.data);
+            // The backend returns a simple array for tasks
+            const taskList = Array.isArray(response.data) ? response.data : (response.data.data || []);
+            console.log('Processed task list:', taskList);
+            setTasks(taskList);
+        } catch (error) {
+            console.error('Error fetching tasks:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        // TODO: Fetch tasks from tasksApi.getMyTasks()
-        setIsLoading(false);
+        fetchTasks();
     }, []);
 
     const handleAccept = async (taskId: string) => {
-        // TODO: Call tasksApi.accept(taskId)
-        console.log('Accepting task:', taskId);
+        try {
+            setActionLoading(taskId);
+            await tasksApi.accept(taskId);
+            await fetchTasks(); // Refresh list
+        } catch (error) {
+            console.error('Error accepting task:', error);
+            alert("Failed to accept task.");
+        } finally {
+            setActionLoading(null);
+        }
     };
 
     const handleUpdateStatus = async (taskId: string, status: 'picked' | 'delivered') => {
-        // TODO: Call tasksApi.updateStatus(taskId, status)
-        console.log('Updating task:', taskId, status);
+        try {
+            setActionLoading(taskId);
+            await tasksApi.updateStatus(taskId, status);
+            await fetchTasks(); // Refresh list
+        } catch (error) {
+            console.error('Error updating task status:', error);
+            alert("Failed to update status.");
+        } finally {
+            setActionLoading(null);
+        }
     };
 
     return (
@@ -57,55 +90,80 @@ export default function VolunteerTasksPage() {
                     </Card>
                 ) : (
                     <div className="space-y-4">
-                        {tasks.map((task) => (
-                            <Card key={task._id}>
-                                <CardContent className="p-4">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div>
-                                            <h3 className="font-semibold">Pickup Task</h3>
-                                            <span className={`inline-block mt-1 px-2 py-1 text-xs rounded-full ${task.status === 'assigned' ? 'bg-yellow-100 text-yellow-700' :
-                                                task.status === 'accepted' ? 'bg-blue-100 text-blue-700' :
-                                                    task.status === 'picked' ? 'bg-orange-100 text-orange-700' :
-                                                        'bg-green-100 text-green-700'
-                                                }`}>
-                                                {task.status}
-                                            </span>
+                        {tasks.map((task: any) => {
+                            const donation = task.donationId;
+                            const ngo = task.ngoId;
+                            return (
+                                <Card key={task._id}>
+                                    <CardContent className="p-4">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div>
+                                                <h3 className="font-semibold">{donation?.title || 'Pickup Task'}</h3>
+                                                <span className={`inline-block mt-1 px-2 py-1 text-xs rounded-full ${task.status === 'assigned' ? 'bg-yellow-100 text-yellow-700' :
+                                                    task.status === 'accepted' ? 'bg-blue-100 text-blue-700' :
+                                                        task.status === 'picked' ? 'bg-orange-100 text-orange-700' :
+                                                            'bg-green-100 text-green-700'
+                                                    }`}>
+                                                    {task.status.toUpperCase()}
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div className="space-y-2 text-sm text-gray-600 mb-4">
-                                        <div className="flex items-center gap-2">
-                                            <Package className="w-4 h-4 text-emerald-600" />
-                                            <span>Pickup: {task.pickupLocation.address || 'See map'}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <MapPin className="w-4 h-4 text-orange-600" />
-                                            <span>Deliver: {task.deliveryLocation.address || 'See map'}</span>
-                                        </div>
-                                    </div>
+                                        <div className="space-y-3 text-sm text-gray-600 mb-6">
+                                            <div className="bg-emerald-50 p-3 rounded-lg border border-emerald-100">
+                                                <div className="flex items-center gap-2 mb-1 font-semibold text-emerald-800">
+                                                    <Package className="w-4 h-4 text-emerald-600" />
+                                                    <span>Pickup from Donor</span>
+                                                </div>
+                                                <p className="ml-6 text-gray-700">{donation?.location?.address || 'Location provided on map'}</p>
+                                                <p className="ml-6 text-xs text-gray-500 mt-1">Quantity: {donation?.quantity}</p>
+                                            </div>
 
-                                    <div className="flex gap-2">
-                                        {task.status === 'assigned' && (
-                                            <Button onClick={() => handleAccept(task._id)} className="bg-emerald-600 hover:bg-emerald-700">
-                                                Accept Task
-                                            </Button>
-                                        )}
-                                        {task.status === 'accepted' && (
-                                            <Button onClick={() => handleUpdateStatus(task._id, 'picked')} className="bg-blue-600 hover:bg-blue-700">
-                                                <Check className="w-4 h-4 mr-2" />
-                                                Mark as Picked
-                                            </Button>
-                                        )}
-                                        {task.status === 'picked' && (
-                                            <Button onClick={() => handleUpdateStatus(task._id, 'delivered')} className="bg-green-600 hover:bg-green-700">
-                                                <Check className="w-4 h-4 mr-2" />
-                                                Mark as Delivered
-                                            </Button>
-                                        )}
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
+                                            <div className="bg-orange-50 p-3 rounded-lg border border-orange-100">
+                                                <div className="flex items-center gap-2 mb-1 font-semibold text-orange-800">
+                                                    <MapPin className="w-4 h-4 text-orange-600" />
+                                                    <span>Deliver to {ngo?.name || 'NGO'}</span>
+                                                </div>
+                                                <p className="ml-6 text-gray-700">{ngo?.address || 'NGO Headquarters'}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex gap-2">
+                                            {task.status === 'assigned' && (
+                                                <Button
+                                                    onClick={() => handleAccept(task._id)}
+                                                    className="bg-emerald-600 hover:bg-emerald-700"
+                                                    disabled={actionLoading === task._id}
+                                                >
+                                                    {actionLoading === task._id ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                                                    Accept Task
+                                                </Button>
+                                            )}
+                                            {task.status === 'accepted' && (
+                                                <Button
+                                                    onClick={() => handleUpdateStatus(task._id, 'picked')}
+                                                    className="bg-blue-600 hover:bg-blue-700"
+                                                    disabled={actionLoading === task._id}
+                                                >
+                                                    {actionLoading === task._id ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Check className="w-4 h-4 mr-2" />}
+                                                    Mark as Picked
+                                                </Button>
+                                            )}
+                                            {task.status === 'picked' && (
+                                                <Button
+                                                    onClick={() => handleUpdateStatus(task._id, 'delivered')}
+                                                    className="bg-green-600 hover:bg-green-700"
+                                                    disabled={actionLoading === task._id}
+                                                >
+                                                    {actionLoading === task._id ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Check className="w-4 h-4 mr-2" />}
+                                                    Mark as Delivered
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            );
+                        })}
                     </div>
                 )}
             </div>

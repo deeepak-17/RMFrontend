@@ -20,8 +20,13 @@ import {
     AdminUsersPage,
     AdminLogsPage,
     DonorDashboard,
+    AddFoodPage,
+    DonorHistoryPage,
     NgoDashboard,
+    NgoAvailablePage,
+    NgoHistoryPage,
     VolunteerDashboard,
+    VolunteerTasksPage,
 } from "@/pages";
 
 function LandingPage() {
@@ -132,6 +137,16 @@ function App() {
                             <AppLayout><DonorDashboard /></AppLayout>
                         </ProtectedRoute>
                     } />
+                    <Route path="/donor/add" element={
+                        <ProtectedRoute allowedRoles={['donor']}>
+                            <AppLayout><AddFoodPage /></AppLayout>
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/donor/history" element={
+                        <ProtectedRoute allowedRoles={['donor']}>
+                            <AppLayout><DonorHistoryPage /></AppLayout>
+                        </ProtectedRoute>
+                    } />
 
                     {/* NGO routes */}
                     <Route path="/ngo/dashboard" element={
@@ -139,11 +154,26 @@ function App() {
                             <AppLayout><NgoDashboard /></AppLayout>
                         </ProtectedRoute>
                     } />
+                    <Route path="/ngo/available" element={
+                        <ProtectedRoute allowedRoles={['ngo']}>
+                            <AppLayout><NgoAvailablePage /></AppLayout>
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/ngo/history" element={
+                        <ProtectedRoute allowedRoles={['ngo']}>
+                            <AppLayout><NgoHistoryPage /></AppLayout>
+                        </ProtectedRoute>
+                    } />
 
                     {/* Volunteer routes */}
                     <Route path="/volunteer/dashboard" element={
                         <ProtectedRoute allowedRoles={['volunteer']}>
                             <AppLayout><VolunteerDashboard /></AppLayout>
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/volunteer/tasks" element={
+                        <ProtectedRoute allowedRoles={['volunteer']}>
+                            <AppLayout><VolunteerTasksPage /></AppLayout>
                         </ProtectedRoute>
                     } />
                 </Routes>

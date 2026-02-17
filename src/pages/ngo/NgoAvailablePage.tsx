@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, MapPin, Clock, List, Map, Utensils, Users, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { donationsApi } from '@/lib/api';
 
 // Mock data - will be replaced with API calls
 const mockDonations = [
@@ -152,32 +153,84 @@ const isUrgent = (expiryTime: string) => {
 };
 
 export default function NgoAvailablePage() {
-    const [donations, setDonations] = useState<Donation[]>(mockDonations);
-    const [isLoading] = useState(false);
+    const [donations, setDonations] = useState<Donation[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
     const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
     const [claimingId, setClaimingId] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     useEffect(() => {
-        // TODO: Fetch real data from API when backend is ready
-        // navigator.geolocation.getCurrentPosition(async (pos) => {
-        //   const { latitude, longitude } = pos.coords;
-        //   const response = await donationsApi.getNearby(latitude, longitude);
-        //   setDonations(response.data.data);
-        // });
+        const fetchDonations = async (lat = 0, lng = 0) => {
+            try {
+                setIsLoading(true);
+                const response = await donationsApi.getNearby(lat, lng);
+                // The backend ngoController returns { count, radiusKm, donations }
+                const donationList = response.data.donations || response.data.data || (Array.isArray(response.data) ? response.data : []);
+                setDonations(donationList);
+            } catch (error) {
+                console.error('Error fetching donations:', error);
+                // Try one more time with 0,0 if specific coordinates failed
+                if (lat !== 0 || lng !== 0) {
+                    try {
+                        const fallbackRes = await donationsApi.getNearby(0, 0);
+                        const fallbackList = fallbackRes.data.donations || fallbackRes.data.data || (Array.isArray(fallbackRes.data) ? fallbackRes.data : []);
+                        setDonations(fallbackList);
+                    } catch (fallbackErr) {
+                        console.error('Fallback error:', fallbackErr);
+                    }
+                }
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        // Try to get geolocation, but don't let it hang the UI
+        if ("geolocation" in navigator) {
+            const geoTimeout = setTimeout(() => {
+                console.log("Geolocation timeout, fetching with defaults");
+                fetchDonations(0, 0);
+            }, 5000);
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    clearTimeout(geoTimeout);
+                    fetchDonations(pos.coords.latitude, pos.coords.longitude);
+                },
+                (err) => {
+                    clearTimeout(geoTimeout);
+                    console.warn("Geolocation denied or failed:", err.message);
+                    fetchDonations(0, 0);
+                },
+                { timeout: 4500 }
+            );
+        } else {
+            fetchDonations(0, 0);
+        }
     }, []);
 
     const handleClaim = async (donationId: string) => {
         setClaimingId(donationId);
-        // TODO: Call API - donationsApi.accept(donationId)
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+        try {
+            await donationsApi.accept(donationId);
 
-        // Update local state
-        setDonations(prev => prev.map(d =>
-            d._id === donationId ? { ...d, status: 'claimed' } : d
-        ));
-        setClaimingId(null);
-        setSelectedDonation(null);
+            // Show success message
+            setSuccessMessage("Donation claimed successfully! A volunteer will be assigned for transport.");
+
+            // Update local state
+            setDonations(prev => prev.map(d =>
+                d._id === donationId ? { ...d, status: 'claimed' } : d
+            ));
+
+            // Clear message after 3 seconds
+            setTimeout(() => setSuccessMessage(null), 5000);
+        } catch (error: any) {
+            console.error('Error claiming donation:', error);
+            alert(error.response?.data?.message || "Failed to claim donation.");
+        } finally {
+            setClaimingId(null);
+            setSelectedDonation(null);
+        }
     };
 
     const sortedDonations = useMemo(() => {
@@ -196,6 +249,12 @@ export default function NgoAvailablePage() {
             {/* Header */}
             <div className="sticky top-0 z-10 bg-white border-b shadow-sm">
                 <div className="max-w-6xl mx-auto p-4">
+                    {successMessage && (
+                        <div className="mb-4 p-4 bg-emerald-100 text-emerald-700 rounded-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-4">
+                            <CheckCircle2 className="w-5 h-5" />
+                            {successMessage}
+                        </div>
+                    )}
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <Link to="/ngo/dashboard" className="p-2 hover:bg-gray-100 rounded-lg">
@@ -256,10 +315,10 @@ export default function NgoAvailablePage() {
                                     <CardContent className="p-3">
                                         <div className="flex justify-between items-start">
                                             <div>
-                                                <h4 className="font-semibold text-sm">{donation.title}</h4>
-                                                <p className="text-xs text-gray-500">{donation.donor.name}</p>
+                                                <h4 className="font-semibold text-sm">{donation.title || 'Untitled'}</h4>
+                                                <p className="text-xs text-gray-500">{donation.donor?.name || 'Unknown'}</p>
                                             </div>
-                                            {isUrgent(donation.expiryTime) && donation.status === 'available' && (
+                                            {donation.expiryTime && isUrgent(donation.expiryTime) && donation.status === 'available' && (
                                                 <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
                                                     Urgent
                                                 </span>
@@ -267,11 +326,13 @@ export default function NgoAvailablePage() {
                                         </div>
                                         <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
                                             <span className="flex items-center gap-1">
-                                                <MapPin className="w-3 h-3" /> {donation.location.distance} km
+                                                <MapPin className="w-3 h-3" /> {donation.location?.distance || 0} km
                                             </span>
-                                            <span className={`flex items-center gap-1 ${isUrgent(donation.expiryTime) ? 'text-red-600 font-medium' : ''}`}>
-                                                <Clock className="w-3 h-3" /> {getTimeRemaining(donation.expiryTime)}
-                                            </span>
+                                            {donation.expiryTime && (
+                                                <span className={`flex items-center gap-1 ${isUrgent(donation.expiryTime) ? 'text-red-600 font-medium' : ''}`}>
+                                                    <Clock className="w-3 h-3" /> {getTimeRemaining(donation.expiryTime)}
+                                                </span>
+                                            )}
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -339,7 +400,7 @@ export default function NgoAvailablePage() {
                                                         </div>
 
                                                         <div className="mt-3 text-sm text-gray-500">
-                                                            <span className="font-medium">From:</span> {donation.donor.name}
+                                                            <span className="font-medium">From:</span> {donation.donor?.name || 'Unknown Donor'}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -366,9 +427,11 @@ export default function NgoAvailablePage() {
                                                         Claimed
                                                     </Button>
                                                 )}
-                                                <p className="text-xs text-gray-400">
-                                                    Pickup: {new Date(donation.pickupWindow.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                </p>
+                                                {donation.pickupWindow?.end && (
+                                                    <p className="text-xs text-gray-400">
+                                                        Pickup: {new Date(donation.pickupWindow.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </p>
+                                                )}
                                             </div>
                                         </div>
                                     </CardContent>
