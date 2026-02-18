@@ -11,7 +11,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Plus, RefreshCw, Loader2, PackageOpen, Edit, Trash2, Clock, MapPin } from 'lucide-react';
@@ -48,6 +48,9 @@ function getTimeRemaining(expiryTime: string): string {
     if (hours > 0) return `${hours}h ${minutes}m remaining`;
     return `${minutes}m remaining`;
 }
+
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ChainOfCustodyTimeline } from "@/components/donation/ChainOfCustodyTimeline";
 
 export default function DonorHistoryPage() {
     const [donations, setDonations] = useState<FoodDonation[]>([]);
@@ -100,6 +103,8 @@ export default function DonorHistoryPage() {
         reserved: donations.filter((d) => d.status === 'reserved').length,
         collected: donations.filter((d) => d.status === 'collected').length,
     };
+
+    const navigate = useNavigate();
 
     return (
         <div className="min-h-screen bg-neutral-50 p-4">
@@ -193,15 +198,20 @@ export default function DonorHistoryPage() {
                                             {/* Image */}
                                             {donation.imageUrl && (
                                                 <img
-                                                    src={donation.imageUrl}
+                                                    src={`http://localhost:5001${donation.imageUrl}`}
                                                     alt={donation.title}
                                                     className="w-20 h-20 rounded-lg object-cover"
+                                                    onError={(e) => {
+                                                        const target = e.target as HTMLImageElement;
+                                                        target.src = "/placeholder-food.jpg";
+                                                    }}
                                                 />
                                             )}
                                             <div>
                                                 <h3 className="font-semibold text-lg">{donation.title}</h3>
                                                 <p className="text-sm text-gray-600">
-                                                    {donation.quantity} {donation.unit} • {donation.foodType}
+                                                    {/* Quantity is now a string like "50 plates" */}
+                                                    {donation.quantity} • {donation.foodType}
                                                 </p>
                                                 <div className="flex gap-4 mt-2 text-sm text-gray-500">
                                                     <span className="flex items-center gap-1">
@@ -219,13 +229,29 @@ export default function DonorHistoryPage() {
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <StatusBadge status={donation.status} />
+
+                                            {/* Track Button (Dialog) */}
+                                            <Dialog>
+                                                <DialogTrigger asChild>
+                                                    <Button variant="outline" size="sm" className="ml-2 gap-1">
+                                                        <Clock className="w-3 h-3" /> Track
+                                                    </Button>
+                                                </DialogTrigger>
+                                                <DialogContent className="sm:max-w-md">
+                                                    <DialogHeader>
+                                                        <DialogTitle>Donation Journey</DialogTitle>
+                                                    </DialogHeader>
+                                                    <ChainOfCustodyTimeline donation={donation} />
+                                                </DialogContent>
+                                            </Dialog>
+
                                             {/* Edit/Delete buttons - only for available donations */}
                                             {donation.status === 'available' && (
                                                 <div className="flex gap-1 ml-2">
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
-                                                        onClick={() => alert(`TODO: Edit donation ${donation._id}`)}
+                                                        onClick={() => navigate(`/donor/edit/${donation._id}`)}
                                                     >
                                                         <Edit className="w-4 h-4" />
                                                     </Button>

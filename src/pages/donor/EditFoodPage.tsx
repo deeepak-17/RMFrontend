@@ -1,32 +1,21 @@
-/**
- * Add Food Page
- * Owner: Member 3 (Donor)
- * Branch: feature/donor
- *
- * IMPLEMENTED:
- * - Form with: title, foodType, quantity, preparedTime, location, image
- * - Auto-calculate expiry time (preparedTime + 4 hours)
- * - Get user's location for pickup point
- * - Hygiene certification checkbox
- * - Call donationsApi.create() on submit
- */
-
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, MapPin, Clock, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { donationsApi } from '@/lib/api';
+import type { FoodDonation } from '@/types';
 
+export default function EditFoodPage() {
+    const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
 
-export default function AddFoodPage() {
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
-    const navigate = useNavigate();
 
     // Form state
     const [title, setTitle] = useState('');
@@ -37,12 +26,56 @@ export default function AddFoodPage() {
     const [address, setAddress] = useState('');
     const [latitude, setLatitude] = useState('');
     const [longitude, setLongitude] = useState('');
-    const [image, setImage] = useState<File | null>(null);
-    const [hygieneCert, setHygieneCert] = useState(false);
-
-    // Auto-calculated expiry time (4 hours from prepared time)
     const [expiryTime, setExpiryTime] = useState<string>('');
 
+    // Fetch existing donation data
+    useEffect(() => {
+        const fetchDonation = async () => {
+            if (!id) return;
+            try {
+                setIsLoading(true);
+                const response = await donationsApi.getById(id);
+                const donation: FoodDonation = response.data;
+
+                setTitle(donation.title);
+                setFoodType(donation.foodType as any);
+
+                // Parse quantity and unit (stored as "50 plates")
+                // Handle cases where quantity might not have a unit or be formatted differently
+                const parts = donation.quantity ? donation.quantity.split(' ') : ['0', 'plates'];
+                const qty = parts[0];
+                const u = parts.length > 1 ? parts.slice(1).join(' ') : 'plates';
+
+                setQuantity(qty || '');
+                setUnit((u as any) || 'plates');
+
+                // Format preparedAt for datetime-local input (YYYY-MM-DDTHH:mm)
+                if (donation.preparedTime) {
+                    const date = new Date(donation.preparedTime);
+                    // Adjust to local ISO string for input
+                    const localIso = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+                    setPreparedAt(localIso);
+                }
+
+                if (donation.location) {
+                    setAddress(donation.location.address || '');
+                    if (donation.location.coordinates) {
+                        setLongitude(donation.location.coordinates[0].toString());
+                        setLatitude(donation.location.coordinates[1].toString());
+                    }
+                }
+            } catch (err: any) {
+                console.error('Failed to fetch donation:', err);
+                setError('Failed to load donation details.');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchDonation();
+    }, [id]);
+
+    // Auto-calculate expiry time
     useEffect(() => {
         if (preparedAt) {
             const prepared = new Date(preparedAt);
@@ -53,7 +86,6 @@ export default function AddFoodPage() {
         }
     }, [preparedAt]);
 
-    // Get current location
     const getCurrentLocation = () => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -73,64 +105,63 @@ export default function AddFoodPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!id) return;
+
         setError(null);
-        setIsLoading(true);
+        setIsSaving(true);
 
         try {
-            // Validation
-            if (!title || !quantity || !preparedAt || !latitude || !longitude) {
-                throw new Error('Please fill in all required fields.');
-            }
+            // Build update object (not FormData, since we're mostly updating text fields for now)
+            // Note: If image update is needed, we'd need to handle that. Assuming text-only update for MVP simplicity or check backend support.
+            // Backend updateDonation takes req.body directly. 
+            // Ideally should support json.
 
-            if (!hygieneCert) {
-                throw new Error('Please certify that the food was prepared in hygienic conditions.');
-            }
+            const updateData = {
+                title,
+                foodType,
+                quantity: `${quantity} ${unit}`,
+                preparedAt: new Date(preparedAt).toISOString(),
+                location: {
+                    type: 'Point',
+                    coordinates: [parseFloat(longitude), parseFloat(latitude)],
+                    address
+                }
+            };
 
-            // Build FormData for image upload
-            const formData = new FormData();
-            formData.append('title', title);
-            formData.append('foodType', foodType);
-            formData.append('quantity', quantity);
-            formData.append('unit', unit);
-            formData.append('preparedAt', new Date(preparedAt).toISOString());
-            formData.append('location[coordinates][0]', longitude); // lng
-            formData.append('location[coordinates][1]', latitude); // lat
-            formData.append('location[address]', address);
-            formData.append('hygieneCert', 'true');
-
-            if (image) {
-                formData.append('image', image);
-            }
-
-            await donationsApi.create(formData);
+            await donationsApi.update(id, updateData);
             setSuccess(true);
-
-            // Redirect to history after success
             setTimeout(() => navigate('/donor/history'), 2000);
         } catch (err: any) {
-            setError(err.response?.data?.message || err.message || 'Failed to create donation.');
+            console.error('Update error:', err);
+            setError(err.response?.data?.message || err.message || 'Failed to update donation.');
         } finally {
-            setIsLoading(false);
+            setIsSaving(false);
         }
     };
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-neutral-50 p-4">
             <div className="max-w-2xl mx-auto">
-                <Link to="/donor/dashboard" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4">
+                <Link to="/donor/history" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4">
                     <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Dashboard
+                    Back to History
                 </Link>
 
-                {/* Success Alert */}
                 {success && (
                     <div className="flex items-center gap-3 rounded-lg bg-emerald-50 p-4 text-emerald-700 mb-4">
                         <CheckCircle className="h-5 w-5" />
-                        <span>Donation created successfully! Redirecting to your history...</span>
+                        <span>Donation updated successfully! Redirecting...</span>
                     </div>
                 )}
 
-                {/* Error Alert */}
                 {error && (
                     <div className="flex items-center gap-3 rounded-lg bg-red-50 p-4 text-red-700 mb-4">
                         <AlertTriangle className="h-5 w-5" />
@@ -140,30 +171,27 @@ export default function AddFoodPage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-2xl text-emerald-600">Donate Food</CardTitle>
+                        <CardTitle className="text-2xl text-emerald-600">Edit Donation</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            {/* Food Description */}
                             <div className="space-y-2">
                                 <Label htmlFor="title">Food Description *</Label>
                                 <Input
                                     id="title"
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
-                                    placeholder="e.g., Rice and curry for 50 people"
                                     required
                                 />
                             </div>
 
-                            {/* Food Type & Quantity */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="foodType">Food Type *</Label>
                                     <select
                                         id="foodType"
                                         value={foodType}
-                                        onChange={(e) => setFoodType(e.target.value as 'veg' | 'non-veg' | 'vegan')}
+                                        onChange={(e) => setFoodType(e.target.value as any)}
                                         className="w-full p-2 border rounded-md"
                                     >
                                         <option value="veg">Vegetarian</option>
@@ -179,13 +207,12 @@ export default function AddFoodPage() {
                                             type="number"
                                             value={quantity}
                                             onChange={(e) => setQuantity(e.target.value)}
-                                            placeholder="e.g., 50"
                                             required
                                             className="flex-1"
                                         />
                                         <select
                                             value={unit}
-                                            onChange={(e) => setUnit(e.target.value as 'kg' | 'plates' | 'servings')}
+                                            onChange={(e) => setUnit(e.target.value as any)}
                                             className="w-24 p-2 border rounded-md"
                                         >
                                             <option value="plates">plates</option>
@@ -196,7 +223,6 @@ export default function AddFoodPage() {
                                 </div>
                             </div>
 
-                            {/* Prepared Time with Expiry Display */}
                             <div className="space-y-2">
                                 <Label htmlFor="preparedAt">Prepared At *</Label>
                                 <Input
@@ -210,12 +236,10 @@ export default function AddFoodPage() {
                                     <p className="text-sm text-orange-600 flex items-center gap-2">
                                         <Clock className="h-4 w-4" />
                                         Expires at: <span className="font-medium">{expiryTime}</span>
-                                        <span className="text-gray-500">(4-hour safety window)</span>
                                     </p>
                                 )}
                             </div>
 
-                            {/* Location */}
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
                                     <Label htmlFor="address">Pickup Address *</Label>
@@ -232,72 +256,22 @@ export default function AddFoodPage() {
                                     id="address"
                                     value={address}
                                     onChange={(e) => setAddress(e.target.value)}
-                                    placeholder="Enter pickup location"
                                     required
                                 />
-                                <div className="grid grid-cols-2 gap-2">
-                                    <Input
-                                        type="number"
-                                        step="any"
-                                        value={latitude}
-                                        onChange={(e) => setLatitude(e.target.value)}
-                                        placeholder="Latitude"
-                                        required
-                                    />
-                                    <Input
-                                        type="number"
-                                        step="any"
-                                        value={longitude}
-                                        onChange={(e) => setLongitude(e.target.value)}
-                                        placeholder="Longitude"
-                                        required
-                                    />
-                                </div>
                             </div>
 
-                            {/* Food Image */}
-                            <div className="space-y-2">
-                                <Label htmlFor="image">Food Image (Optional)</Label>
-                                <Input
-                                    id="image"
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => setImage(e.target.files?.[0] || null)}
-                                />
-                            </div>
-
-                            {/* Hygiene Certification */}
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    id="hygiene"
-                                    checked={hygieneCert}
-                                    onChange={(e) => setHygieneCert(e.target.checked)}
-                                    required
-                                />
-                                <Label htmlFor="hygiene" className="text-sm">
-                                    I certify this food was prepared in hygienic conditions *
-                                </Label>
-                            </div>
-
-                            {/* Submit */}
                             <Button
                                 type="submit"
                                 className="w-full bg-emerald-600 hover:bg-emerald-700"
-                                disabled={isLoading || success}
+                                disabled={isSaving || success}
                             >
-                                {isLoading ? (
+                                {isSaving ? (
                                     <>
                                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                        Submitting...
-                                    </>
-                                ) : success ? (
-                                    <>
-                                        <CheckCircle className="w-4 h-4 mr-2" />
-                                        Donation Created!
+                                        Saving...
                                     </>
                                 ) : (
-                                    'Post Donation'
+                                    'Update Donation'
                                 )}
                             </Button>
                         </form>

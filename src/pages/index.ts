@@ -4,15 +4,18 @@
 // Auth Pages
 export { default as LoginPage } from './LoginPage';
 export { default as RegisterPage } from './RegisterPage';
+export { default as VerificationPendingPage } from './VerificationPendingPage';
 
 // Admin Pages
 export { default as AdminDashboard } from './admin/AdminDashboard';
 export { default as AdminUsersPage } from './admin/AdminUsersPage';
 export { default as AdminLogsPage } from './admin/AdminLogsPage';
+export { default as AdminDonationsPage } from './admin/AdminDonationsPage';
 
 // Donor Pages
 export { default as DonorDashboard } from './donor/DonorDashboard';
 export { default as AddFoodPage } from './donor/AddFoodPage';
+export { default as EditFoodPage } from './donor/EditFoodPage';
 export { default as DonorHistoryPage } from './donor/DonorHistoryPage';
 
 // NGO Pages

@@ -1,15 +1,28 @@
 "use client";
 
 
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { Image } from "@/components/ui/image";
 import { Search, MapPin, Bell } from "lucide-react";
 
 export const Navbar = () => {
   const pathname = useLocation().pathname;
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Don't show on landing page
   if (pathname === "/") return null;
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const term = e.target.value;
+    if (term) {
+      const newParams = { ...Object.fromEntries(searchParams), search: term };
+      setSearchParams(newParams);
+    } else {
+      const newParams = Object.fromEntries(searchParams);
+      delete newParams.search;
+      setSearchParams(newParams);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-100 px-4 py-3 md:px-8">
@@ -35,6 +48,8 @@ export const Navbar = () => {
               type="text"
               placeholder="Search for surplus food..."
               className="w-full bg-gray-50 border-none rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all"
+              value={searchParams.get('search') || ''}
+              onChange={handleSearch}
             />
           </div>
         </div>
@@ -42,7 +57,7 @@ export const Navbar = () => {
         <div className="flex items-center gap-3">
           <button className="flex items-center gap-1.5 text-gray-600 hover:text-primary transition-colors px-3 py-2 rounded-xl hover:bg-gray-50">
             <MapPin className="w-5 h-5" />
-            <span className="text-sm font-semibold hidden lg:block">London</span>
+            <span className="text-sm font-semibold hidden lg:block">Coimbatore</span>
           </button>
           <button className="relative p-2 text-gray-600 hover:text-primary transition-colors rounded-xl hover:bg-gray-50">
             <Bell className="w-6 h-6" />

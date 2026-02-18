@@ -12,7 +12,7 @@
  * - Claim button for NGO/Volunteer view
  */
 
-import { useState } from "react";
+
 import { Image } from "@/components/ui/image";
 import { Clock, MapPin, Package, Edit, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -92,7 +92,7 @@ export const FoodCard = ({
   const cardId = donation?._id || id || "";
   const cardTitle = donation?.title || title || "Food Donation";
   const cardImage = donation?.imageUrl || image || "/placeholder-food.jpg";
-  const cardQuantity = donation?.quantity || quantity || 0;
+  const cardQuantity = donation?.quantity || quantity || "0";
   const cardUnit = donation?.unit || "plates";
   const cardLocation = donation?.location?.address || location || "Location not specified";
   const cardExpiryTime = donation?.expiryTime || expiryTime || "";
@@ -115,12 +115,13 @@ export const FoodCard = ({
         <div className="absolute top-3 left-3 flex gap-2">
           <div className="bg-accent text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm">
             <Package className="w-3 h-3" />
-            {cardQuantity} {cardUnit}
+            {/* If quantity is string and already contains unit (has space), display as is. Otherwise append unit */}
+            {typeof cardQuantity === 'string' && cardQuantity.includes(' ') ? cardQuantity : `${cardQuantity} ${cardUnit}`}
           </div>
           {/* Food Type Badge */}
           <div className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm ${cardFoodType === "veg" ? "bg-green-500 text-white" :
-              cardFoodType === "vegan" ? "bg-emerald-500 text-white" :
-                "bg-red-500 text-white"
+            cardFoodType === "vegan" ? "bg-emerald-500 text-white" :
+              "bg-red-500 text-white"
             }`}>
             {cardFoodType === "veg" ? "🥬 Veg" : cardFoodType === "vegan" ? "🌱 Vegan" : "🍗 Non-Veg"}
           </div>

@@ -5,10 +5,12 @@ export interface User {
     email: string;
     role: 'donor' | 'ngo' | 'volunteer' | 'admin';
     organizationType?: 'restaurant' | 'canteen' | 'event' | 'shelter';
-    verificationStatus: 'pending' | 'verified' | 'rejected';
+    verified: boolean;
     sustainabilityCredits: number;
     languagePref: string;
     createdAt: string;
+    verificationDocument?: string;
+    documentType?: string;
 }
 
 export interface AuthResponse {
@@ -19,14 +21,15 @@ export interface AuthResponse {
 // Food Donation types
 export interface FoodDonation {
     _id: string;
-    donorId: string;
+    donorId: string | User;
     title: string;
     foodType: 'veg' | 'non-veg' | 'vegan';
-    quantity: number;
-    unit: 'kg' | 'plates' | 'servings';
-    preparedAt: string;
+    quantity: string; // Changed from number to string to match backend "50 plates"
+    unit?: string; // Optional, inferred from quantity string
+    preparedTime: string; // Backend sends this
+    preparedAt?: string; // Legacy/frontend alias
     expiryTime: string;
-    hygieneCert: boolean;
+    hygieneCert?: boolean;
     imageUrl?: string;
     location: {
         type: 'Point';
@@ -35,6 +38,10 @@ export interface FoodDonation {
     };
     status: 'available' | 'reserved' | 'collected' | 'expired';
     createdAt: string;
+    // NGO Workflow
+    reservedBy?: string;
+    reservedAt?: string;
+    collectedAt?: string;
 }
 
 export interface CreateDonationInput {

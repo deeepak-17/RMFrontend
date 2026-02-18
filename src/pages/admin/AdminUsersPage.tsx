@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Search, ShieldCheck, ShieldAlert, UserCheck, UserX, Loader2, Sparkles, Users } from 'lucide-react';
+import { Search, ShieldCheck, UserCheck, UserX, Loader2, Sparkles, Users } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AdminUsersPage() {
@@ -15,27 +15,35 @@ export default function AdminUsersPage() {
     const [roleFilter, setRoleFilter] = useState<'all' | 'donor' | 'ngo' | 'volunteer' | 'admin'>('all');
 
     const getMockUsers = (): User[] => [
-        { _id: '1', name: 'John Doe', email: 'john@example.com', role: 'donor', verificationStatus: 'verified', createdAt: new Date().toISOString(), sustainabilityCredits: 10, languagePref: 'en' },
-        { _id: '2', name: 'Helping Hands', email: 'contact@helpinghands.org', role: 'ngo', verificationStatus: 'pending', createdAt: new Date().toISOString(), sustainabilityCredits: 0, languagePref: 'en' },
-        { _id: '3', name: 'Mike Volunteer', email: 'mike@vol.com', role: 'volunteer', verificationStatus: 'verified', createdAt: new Date().toISOString(), sustainabilityCredits: 50, languagePref: 'en' },
-        { _id: '4', name: 'Sarah Admin', email: 'sarah@admin.com', role: 'admin', verificationStatus: 'verified', createdAt: new Date().toISOString(), sustainabilityCredits: 0, languagePref: 'en' },
-        { _id: '5', name: 'New NGO', email: 'info@newngo.org', role: 'ngo', verificationStatus: 'rejected', createdAt: new Date().toISOString(), sustainabilityCredits: 0, languagePref: 'en' },
-        { _id: '6', name: 'Alice Smith', email: 'alice@example.com', role: 'donor', verificationStatus: 'verified', createdAt: new Date().toISOString(), sustainabilityCredits: 5, languagePref: 'es' },
-        { _id: '7', name: 'Food Bank City', email: 'city@foodbank.org', role: 'ngo', verificationStatus: 'pending', createdAt: new Date().toISOString(), sustainabilityCredits: 100, languagePref: 'en' },
-        { _id: '8', name: 'Bob Builder', email: 'bob@vol.com', role: 'volunteer', verificationStatus: 'verified', createdAt: new Date().toISOString(), sustainabilityCredits: 25, languagePref: 'en' },
+        { _id: '1', name: 'John Doe', email: 'john@example.com', role: 'donor', verified: true, createdAt: new Date().toISOString(), sustainabilityCredits: 10, languagePref: 'en' },
+        { _id: '2', name: 'Helping Hands', email: 'contact@helpinghands.org', role: 'ngo', verified: false, createdAt: new Date().toISOString(), sustainabilityCredits: 0, languagePref: 'en' },
+        { _id: '3', name: 'Mike Volunteer', email: 'mike@vol.com', role: 'volunteer', verified: true, createdAt: new Date().toISOString(), sustainabilityCredits: 50, languagePref: 'en' },
+        { _id: '4', name: 'Sarah Admin', email: 'sarah@admin.com', role: 'admin', verified: true, createdAt: new Date().toISOString(), sustainabilityCredits: 0, languagePref: 'en' },
+        { _id: '5', name: 'New NGO', email: 'info@newngo.org', role: 'ngo', verified: false, createdAt: new Date().toISOString(), sustainabilityCredits: 0, languagePref: 'en' },
     ];
 
     const fetchUsers = async () => {
         setIsLoading(true);
         try {
             const response = await adminApi.getUsers();
-            if (response.data.success) {
-                setUsers(response.data.data);
+            // Backend returns { users: User[], pagination: ... }
+            if (response.data && Array.isArray(response.data.users)) {
+                console.log("Admin Users Data:", response.data.users); // DEBUG log
+                setUsers(response.data.users);
+            } else if (response.data && Array.isArray(response.data)) {
+                // Fallback if it returns just an array
+                setUsers(response.data);
             } else {
+                console.warn('Unexpected API response format:', response.data);
                 setUsers(getMockUsers());
             }
         } catch (error) {
-            console.warn('Using mock users data');
+            console.error('Failed to fetch users:', error);
+            // check if error is 403 (Forbidden) -> show toast
+            // @ts-ignore
+            if (error.response?.status === 403) {
+                toast.error("Access Denied: You are not an admin");
+            }
             setUsers(getMockUsers());
         } finally {
             setIsLoading(false);
@@ -54,7 +62,7 @@ export default function AdminUsersPage() {
         } catch (error) {
             console.warn('Mock verify success');
             toast.success('User verified successfully (Mock)');
-            setUsers(prev => prev.map(u => u._id === userId ? { ...u, verificationStatus: 'verified' } : u));
+            setUsers(prev => prev.map(u => u._id === userId ? { ...u, verified: true } : u));
         }
     };
 
@@ -66,7 +74,7 @@ export default function AdminUsersPage() {
         } catch (error) {
             console.warn('Mock block success');
             toast.success('User blocked successfully (Mock)');
-            setUsers(prev => prev.map(u => u._id === userId ? { ...u, verificationStatus: 'rejected' } : u));
+            setUsers(prev => prev.map(u => u._id === userId ? { ...u, verified: false } : u));
         }
     };
 
@@ -87,21 +95,15 @@ export default function AdminUsersPage() {
         }
     };
 
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case 'verified':
-                return <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-1 border-none px-2 py-0.5">
-                    <ShieldCheck className="w-3 h-3" /> Verified
-                </Badge>;
-            case 'pending':
-                return <Badge className="bg-yellow-500 hover:bg-yellow-600 text-white flex items-center gap-1 border-none px-2 py-0.5">
-                    <Loader2 className="w-3 h-3 animate-spin" /> Pending
-                </Badge>;
-            case 'rejected':
-                return <Badge className="bg-destructive hover:bg-destructive/90 text-white flex items-center gap-1 border-none px-2 py-0.5">
-                    <ShieldAlert className="w-3 h-3" /> Rejected
-                </Badge>;
-            default: return <Badge variant="secondary">{status}</Badge>;
+    const getStatusBadge = (verified: boolean) => {
+        if (verified) {
+            return <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-1 border-none px-2 py-0.5">
+                <ShieldCheck className="w-3 h-3" /> Verified
+            </Badge>;
+        } else {
+            return <Badge className="bg-yellow-500 hover:bg-yellow-600 text-white flex items-center gap-1 border-none px-2 py-0.5">
+                <Loader2 className="w-3 h-3 animate-spin" /> Pending/Blocked
+            </Badge>;
         }
     };
 
@@ -174,18 +176,35 @@ export default function AdminUsersPage() {
                                 <CardHeader className="pb-2">
                                     <div className="flex justify-between items-start mb-2">
                                         {getRoleBadge(user.role)}
-                                        {getStatusBadge(user.verificationStatus)}
+                                        {getStatusBadge(user.verified)}
                                     </div>
                                     <CardTitle className="text-xl font-extrabold group-hover:text-primary transition-colors truncate">{user.name}</CardTitle>
                                     <CardDescription className="font-mono text-xs opacity-70 truncate">{user.email}</CardDescription>
                                 </CardHeader>
                                 <CardContent className="flex-1 flex flex-col">
-                                    <div className="text-sm text-muted-foreground mb-6">
+                                    <div className="text-sm text-muted-foreground mb-4">
                                         Joined {user.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown'}
                                     </div>
 
+                                    {user.verificationDocument && (
+                                        <div className="mb-4 bg-muted/40 p-2 rounded text-xs">
+                                            <p className="font-semibold mb-1">Verification Document:</p>
+                                            <div className="flex items-center justify-between">
+                                                <span className="uppercase text-[10px] bg-slate-200 px-1 rounded">{user.documentType?.replace('_', ' ') || 'Document'}</span>
+                                                <a
+                                                    href={`http://localhost:5001/${user.verificationDocument}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-600 hover:underline flex items-center gap-1"
+                                                >
+                                                    View File ↗
+                                                </a>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div className="flex gap-2 mt-auto pt-4 border-t border-border/50">
-                                        {user.verificationStatus === 'pending' && (
+                                        {!user.verified && (
                                             <Button
                                                 onClick={() => handleVerify(user._id)}
                                                 className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase transition-all active:scale-95"
@@ -200,7 +219,7 @@ export default function AdminUsersPage() {
                                             className="flex-1 border-destructive/20 text-destructive hover:bg-destructive hover:text-white text-xs font-bold uppercase transition-all active:scale-95"
                                             size="sm"
                                         >
-                                            <UserX className="w-3 h-3 mr-2" /> Block
+                                            <UserX className="w-3 h-3 mr-2" /> {user.verified ? 'Block' : 'Block / Reject'}
                                         </Button>
                                     </div>
                                 </CardContent>

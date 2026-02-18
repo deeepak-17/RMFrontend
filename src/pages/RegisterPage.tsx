@@ -24,6 +24,8 @@ export default function RegisterPage() {
     const [password, setPassword] = useState('');
     const [role, setRole] = useState('donor');
     const [organizationType, setOrganizationType] = useState('');
+    const [documentType, setDocumentType] = useState('registration_cert');
+    const [verificationFile, setVerificationFile] = useState<File | null>(null);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { register, logout } = useAuth();
@@ -35,7 +37,10 @@ export default function RegisterPage() {
         setIsLoading(true);
 
         try {
-            await register(name, email, password, role, organizationType || undefined);
+            // If file is present, we need to handle it in the auth hook (which needs updating)
+            // For now, we'll pass the extra data
+            await register(name, email, password, role, organizationType || undefined, verificationFile, documentType);
+
             // Clear auto-login state to force manual login as per user request
             logout();
             navigate('/login', {
@@ -138,6 +143,38 @@ export default function RegisterPage() {
                                     <option value="event">Event Hall</option>
                                     <option value="individual">Individual</option>
                                 </select>
+                            </div>
+                        )}
+
+                        {role === 'ngo' && (
+                            <div className="space-y-4 border-t pt-4 mt-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="documentType">Verification Document Type</Label>
+                                    <select
+                                        id="documentType"
+                                        value={documentType}
+                                        onChange={(e) => setDocumentType(e.target.value)}
+                                        className="w-full p-2 border rounded-md"
+                                        required
+                                    >
+                                        <option value="registration_cert">Registration Certificate</option>
+                                        <option value="tax_exemption">Tax Exemption Certificate</option>
+                                        <option value="ngo_license">NGO License</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="verificationDocument">Upload Document (PDF/Image)</Label>
+                                    <Input
+                                        id="verificationDocument"
+                                        type="file"
+                                        accept=".pdf,.jpg,.jpeg,.png"
+                                        onChange={(e) => setVerificationFile(e.target.files?.[0] || null)}
+                                        required
+                                    />
+                                    <p className="text-xs text-gray-500">
+                                        Required for NGO verification. Admin will review this.
+                                    </p>
+                                </div>
                             </div>
                         )}
 

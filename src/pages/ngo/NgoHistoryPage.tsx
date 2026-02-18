@@ -13,96 +13,33 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Package, Users, Leaf, Calendar, MapPin, CheckCircle2, Clock, Truck, Filter } from 'lucide-react';
-
-// Mock data - will be replaced with API calls
-const mockCollections = [
-    {
-        _id: '1',
-        title: 'Rice and Curry - 50 servings',
-        donor: 'Taj Restaurant',
-        address: '123 Food Street, City Center',
-        status: 'collected',
-        collectedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        servingsCount: 50,
-        peopleFed: 50,
-        co2Saved: 15,
-    },
-    {
-        _id: '2',
-        title: 'Bread and Pastries - 30 pieces',
-        donor: 'City Bakery',
-        address: '45 Baker Street',
-        status: 'reserved',
-        claimedAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-        pickupBy: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
-        servingsCount: 30,
-        peopleFed: 0,
-        co2Saved: 0,
-    },
-    {
-        _id: '3',
-        title: 'Vegetable Biryani - 40 plates',
-        donor: 'Grand Canteen',
-        address: '78 Corporate Park',
-        status: 'collected',
-        collectedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-        servingsCount: 40,
-        peopleFed: 40,
-        co2Saved: 12,
-    },
-    {
-        _id: '4',
-        title: 'Mixed Lunch Plates',
-        donor: 'Tech Park Canteen',
-        address: '90 Tech Hub',
-        status: 'collected',
-        collectedAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
-        servingsCount: 75,
-        peopleFed: 75,
-        co2Saved: 22,
-    },
-    {
-        _id: '5',
-        title: 'Fresh Sandwiches',
-        donor: 'Cafe Express',
-        address: '12 Main Road',
-        status: 'in_transit',
-        claimedAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-        servingsCount: 25,
-        peopleFed: 0,
-        co2Saved: 0,
-    },
-];
-
-interface Collection {
-    _id: string;
-    title: string;
-    donor: string;
-    address: string;
-    status: string;
-    collectedAt?: string;
-    claimedAt?: string;
-    pickupBy?: string;
-    servingsCount: number;
-    peopleFed: number;
-    co2Saved: number;
-}
+import { ArrowLeft, Package, Users, Leaf, Calendar, MapPin, CheckCircle2, Clock, Truck, Filter, Loader2 } from 'lucide-react';
+import { donationsApi } from '@/lib/api';
+import { FoodDonation } from '@/types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ChainOfCustodyTimeline } from "@/components/donation/ChainOfCustodyTimeline";
+import { toast } from 'sonner';
 
 export default function NgoHistoryPage() {
-    const [collections] = useState<Collection[]>(mockCollections);
-    const [isLoading] = useState(false);
-    const [filter, setFilter] = useState<'all' | 'collected' | 'reserved' | 'in_transit'>('all');
+    const [collections, setCollections] = useState<FoodDonation[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [filter, setFilter] = useState<'all' | 'collected' | 'reserved' | 'expired'>('all');
+
+    const fetchHistory = async () => {
+        setIsLoading(true);
+        try {
+            const response = await donationsApi.getNgoHistory();
+            setCollections(response.data || []);
+        } catch (error) {
+            console.error("Failed to load history", error);
+            toast.error("Failed to load collection history");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        // TODO: Fetch real data from API when backend is ready
-        // const fetchHistory = async () => {
-        //   setIsLoading(true);
-        //   const response = await api.get('/ngo/collections');
-        //   setCollections(response.data);
-        //   setIsLoading(false);
-        // };
-        // fetchHistory();
+        fetchHistory();
     }, []);
 
     const filteredCollections = filter === 'all'
@@ -111,9 +48,9 @@ export default function NgoHistoryPage() {
 
     const stats = {
         totalCollections: collections.filter(c => c.status === 'collected').length,
-        peopleFed: collections.reduce((acc, c) => acc + c.peopleFed, 0),
-        co2Saved: collections.reduce((acc, c) => acc + c.co2Saved, 0),
-        pending: collections.filter(c => c.status === 'reserved' || c.status === 'in_transit').length,
+        peopleFed: collections.filter(c => c.status === 'collected').length * 4, // Mock calculation: 4 people per donation? Or parse quantity?
+        co2Saved: collections.filter(c => c.status === 'collected').length * 2.5, // Mock CO2: 2.5kg per donation
+        pending: collections.filter(c => c.status === 'reserved').length,
     };
 
     const getStatusBadge = (status: string) => {
@@ -130,10 +67,10 @@ export default function NgoHistoryPage() {
                         <Clock className="w-3 h-3" /> Reserved
                     </span>
                 );
-            case 'in_transit':
+            case 'expired':
                 return (
-                    <span className="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700 flex items-center gap-1">
-                        <Truck className="w-3 h-3" /> In Transit
+                    <span className="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700 flex items-center gap-1">
+                        <Clock className="w-3 h-3" /> Expired
                     </span>
                 );
             default:
@@ -237,17 +174,16 @@ export default function NgoHistoryPage() {
                     <span className="text-sm text-gray-500 mr-2">
                         <Filter className="w-4 h-4 inline-block mr-1" /> Filter:
                     </span>
-                    {['all', 'collected', 'reserved', 'in_transit'].map((status) => (
+                    {['all', 'collected', 'reserved'].map((status) => (
                         <Button
                             key={status}
                             variant={filter === status ? 'default' : 'outline'}
                             size="sm"
-                            onClick={() => setFilter(status as typeof filter)}
+                            onClick={() => setFilter(status as any)}
                             className={filter === status ? 'bg-emerald-600' : ''}
                         >
                             {status === 'all' ? 'All' :
-                                status === 'in_transit' ? 'In Transit' :
-                                    status.charAt(0).toUpperCase() + status.slice(1)}
+                                status.charAt(0).toUpperCase() + status.slice(1)}
                         </Button>
                     ))}
                 </div>
@@ -263,7 +199,7 @@ export default function NgoHistoryPage() {
                     <CardContent>
                         {isLoading ? (
                             <div className="flex items-center justify-center py-12">
-                                <div className="animate-spin w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full" />
+                                <Loader2 className="animate-spin w-8 h-8 text-emerald-500" />
                             </div>
                         ) : filteredCollections.length === 0 ? (
                             <div className="text-center py-12">
@@ -288,41 +224,44 @@ export default function NgoHistoryPage() {
                                     >
                                         <div className="flex items-start gap-4">
                                             <div className={`p-2 rounded-lg ${collection.status === 'collected' ? 'bg-green-100' :
-                                                collection.status === 'in_transit' ? 'bg-blue-100' :
-                                                    'bg-yellow-100'
+                                                'bg-yellow-100'
                                                 }`}>
                                                 <Package className={`w-5 h-5 ${collection.status === 'collected' ? 'text-green-600' :
-                                                    collection.status === 'in_transit' ? 'text-blue-600' :
-                                                        'text-yellow-600'
+                                                    'text-yellow-600'
                                                     }`} />
                                             </div>
                                             <div>
                                                 <h4 className="font-semibold text-gray-900">{collection.title}</h4>
-                                                <p className="text-sm text-gray-600">From: {collection.donor}</p>
+                                                <p className="text-sm text-gray-600">From: {(typeof collection.donorId === 'object' ? collection.donorId?.name : null) || 'Unknown Donor'}</p>
                                                 <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
                                                     <span className="flex items-center gap-1">
-                                                        <MapPin className="w-3 h-3" /> {collection.address}
+                                                        <MapPin className="w-3 h-3" /> {collection.location?.address || 'No address'}
                                                     </span>
                                                 </div>
-                                                {collection.status === 'collected' && (
-                                                    <div className="flex items-center gap-4 mt-2 text-xs">
-                                                        <span className="text-emerald-600">
-                                                            <Users className="w-3 h-3 inline mr-1" />
-                                                            {collection.peopleFed} fed
-                                                        </span>
-                                                        <span className="text-teal-600">
-                                                            <Leaf className="w-3 h-3 inline mr-1" />
-                                                            {collection.co2Saved}kg CO₂ saved
-                                                        </span>
-                                                    </div>
-                                                )}
                                             </div>
                                         </div>
                                         <div className="flex flex-col items-end gap-2 mt-4 md:mt-0">
-                                            {getStatusBadge(collection.status)}
+                                            <div className="flex items-center gap-2">
+                                                {getStatusBadge(collection.status)}
+
+                                                <Dialog>
+                                                    <DialogTrigger asChild>
+                                                        <Button variant="outline" size="sm" className="h-7 text-xs gap-1">
+                                                            <Clock className="w-3 h-3" /> Track
+                                                        </Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent className="sm:max-w-md">
+                                                        <DialogHeader>
+                                                            <DialogTitle>Chain of Custody</DialogTitle>
+                                                        </DialogHeader>
+                                                        <ChainOfCustodyTimeline donation={collection} />
+                                                    </DialogContent>
+                                                </Dialog>
+                                            </div>
+
                                             <span className="text-xs text-gray-500">
-                                                {collection.collectedAt ? formatDate(collection.collectedAt) :
-                                                    collection.claimedAt ? `Claimed ${formatDate(collection.claimedAt)}` : ''}
+                                                {collection.collectedAt ? `Collected ${formatDate(collection.collectedAt)}` :
+                                                    collection.reservedAt ? `Reserved ${formatDate(collection.reservedAt)}` : ''}
                                             </span>
                                         </div>
                                     </div>

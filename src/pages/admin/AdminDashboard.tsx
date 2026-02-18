@@ -25,7 +25,7 @@ export default function AdminDashboard() {
                     setStats(prev => ({
                         ...prev,
                         totalUsers: users.length,
-                        pendingVerification: users.filter(u => u.verificationStatus === 'pending').length,
+                        pendingVerification: users.filter(u => !u.verified && u.role === 'ngo').length,
                     }));
                 }
             } catch (error) {
