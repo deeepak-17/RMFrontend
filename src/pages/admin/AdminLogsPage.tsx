@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Search, Clock, User, ClipboardList, Loader2, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface LogEntry {
     _id: string;
@@ -35,13 +36,23 @@ export default function AdminLogsPage() {
         setIsLoading(true);
         try {
             const response = await adminApi.getLogs();
-            if (response.data.success) {
-                setLogs(response.data.data);
+            // Expected backend response: { logs: LogEntry[], ... } or just array
+            if (response.data && Array.isArray(response.data.logs)) {
+                setLogs(response.data.logs);
+            } else if (response.data && Array.isArray(response.data)) {
+                setLogs(response.data);
             } else {
+                // Keep mock if no data found
+                console.warn('Logs API returned unexpected format, using mock');
                 setLogs(getMockLogs());
             }
         } catch (error) {
-            console.warn('Using mock logs data');
+            console.error('Failed to fetch logs:', error);
+            // @ts-ignore
+            if (error.response?.status === 403) {
+                toast.error("Access Denied: You are not an admin");
+            }
+            // Fallback to mock
             setLogs(getMockLogs());
         } finally {
             setIsLoading(false);

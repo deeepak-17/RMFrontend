@@ -2,9 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
     baseURL: (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000/api',
-    headers: {
-        'Content-Type': 'application/json',
-    },
+    // headers: { 'Content-Type': 'application/json' }  <-- Removed to let Axios handle it
 });
 
 // Request interceptor - add auth token
@@ -35,7 +33,7 @@ export default api;
 
 // Auth API
 export const authApi = {
-    register: (data: { name: string; email: string; password: string; role: string; organizationType?: string }) =>
+    register: (data: { name: string; email: string; password: string; role: string; organizationType?: string } | FormData) =>
         api.post('/auth/register', data),
     login: (data: { email: string; password: string }) =>
         api.post('/auth/login', data),
@@ -53,6 +51,7 @@ export const donationsApi = {
     delete: (id: string) => api.delete(`/donations/${id}`),
     accept: (id: string) => api.post(`/ngo/accept/${id}`),
     confirmPickup: (id: string) => api.post(`/ngo/confirm/${id}`),
+    getNgoHistory: () => api.get('/ngo/history'),
 };
 
 // Tasks API (Volunteer)
@@ -69,4 +68,5 @@ export const adminApi = {
     verifyUser: (id: string) => api.put(`/admin/users/${id}/verify`),
     blockUser: (id: string) => api.put(`/admin/users/${id}/block`),
     getLogs: () => api.get('/admin/logs'),
+    getDonations: (status?: string) => api.get(`/admin/donations${status && status !== 'all' ? `?status=${status}` : ''}`), // NEW for timeline
 };

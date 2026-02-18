@@ -13,7 +13,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, History, TrendingUp, Loader2, Clock, MapPin } from 'lucide-react';
+import { Plus, History, TrendingUp, Loader2, MapPin } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { donationsApi } from '@/lib/api';
 import { socketService } from '@/lib/socket';
@@ -53,7 +53,10 @@ export default function DonorDashboard() {
 
                 // Calculate stats
                 const collected = donations.filter((d: FoodDonation) => d.status === 'collected');
-                const totalMeals = collected.reduce((sum: number, d: FoodDonation) => sum + (d.quantity || 0), 0);
+                const totalMeals = collected.reduce((sum: number, d: FoodDonation) => {
+                    const qty = parseInt(d.quantity) || 0;
+                    return sum + qty;
+                }, 0);
                 setStats({
                     meals: totalMeals,
                     co2: Math.round(totalMeals * 2.5), // ~2.5kg CO2 per meal saved

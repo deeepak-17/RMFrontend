@@ -9,7 +9,7 @@ interface AuthContextType {
     isLoading: boolean;
     isAuthenticated: boolean;
     login: (email: string, password: string) => Promise<void>;
-    register: (name: string, email: string, password: string, role: string, organizationType?: string) => Promise<void>;
+    register: (name: string, email: string, password: string, role: string, organizationType?: string, verificationFile?: File | null, documentType?: string) => Promise<void>;
     logout: () => void;
 }
 
@@ -54,12 +54,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         socketService.connect(token);
     };
 
-    const register = async (name: string, email: string, password: string, role: string, organizationType?: string) => {
-        const response = await authApi.register({ name, email, password, role, organizationType });
-        const { token, user } = response.data;
-        localStorage.setItem('token', token);
-        setToken(token);
-        setUser(user);
+    const register = async (name: string, email: string, password: string, role: string, organizationType?: string, verificationFile?: File | null, documentType?: string) => {
+        setIsLoading(true);
+        // setError(null); // Removed: setError not defined in context
+        try {
+            let response;
+
+            // If file is present, use FormData
+            if (verificationFile) {
+                const formData = new FormData();
+                formData.append('name', name);
+                formData.append('email', email);
+                formData.append('password', password);
+                formData.append('role', role);
+                if (organizationType) formData.append('organizationType', organizationType);
+                if (documentType) formData.append('documentType', documentType);
+                formData.append('verificationDocument', verificationFile);
+
+                response = await authApi.register(formData);
+            } else {
+                // Otherwise use JSON
+                response = await authApi.register({ name, email, password, role, organizationType });
+            }
+
+            // NOTE: We don't auto-login here anymore based on RegisterPage logic
+            // but if we did, we'd handle token here.
+            return response.data;
+        } catch (error: any) {
+            // setError(error.response?.data?.message || 'Registration failed'); // Removed
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const logout = () => {

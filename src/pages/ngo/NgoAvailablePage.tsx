@@ -13,7 +13,7 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -114,6 +114,7 @@ const mockDonations = [
         pickupWindow: { start: new Date().toISOString(), end: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString() },
         status: 'available',
         servingsCount: 50,
+        imageUrl: 'https://placehold.co/600x400/orange/white?text=Mixed+Lunch',
     },
     {
         _id: '2',
@@ -128,6 +129,7 @@ const mockDonations = [
         pickupWindow: { start: new Date().toISOString(), end: new Date(Date.now() + 5 * 60 * 60 * 1000).toISOString() },
         status: 'available',
         servingsCount: 40,
+        imageUrl: 'https://placehold.co/600x400/green/white?text=Sandwiches',
     },
     {
         _id: '3',
@@ -142,6 +144,7 @@ const mockDonations = [
         pickupWindow: { start: new Date().toISOString(), end: new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString() },
         status: 'available',
         servingsCount: 100,
+        imageUrl: 'https://placehold.co/600x400/red/white?text=Biryani',
     },
     {
         _id: '4',
@@ -156,6 +159,7 @@ const mockDonations = [
         pickupWindow: { start: new Date().toISOString(), end: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString() },
         status: 'available',
         servingsCount: 30,
+        imageUrl: 'https://placehold.co/600x400/blue/white?text=Rice+Meal',
     },
 ];
 
@@ -172,6 +176,7 @@ interface Donation {
     pickupWindow: { start: string; end: string };
     status: string;
     servingsCount: number;
+    imageUrl?: string;
 }
 
 const getTimeRemaining = (expiryTime: string) => {
@@ -209,7 +214,18 @@ export default function NgoAvailablePage() {
                 setIsLoading(true);
                 const response = await donationsApi.getNearby(lat, lng);
                 const donationList = response.data.donations || response.data.data || (Array.isArray(response.data) ? response.data : []);
-                setDonations(donationList.length > 0 ? donationList : mockDonations);
+
+                // Map backend response (donorId) to frontend structure (donor)
+                const mappedDonations = donationList.map((d: any) => ({
+                    ...d,
+                    donor: d.donorId || { name: 'Unknown Donor', phone: '' },
+                    // Ensure imageUrl has full path if relative
+                    imageUrl: d.imageUrl,
+                    // Ensure location is valid
+                    location: d.location || { address: 'Unknown', distance: 0, coordinates: [0, 0] }
+                }));
+
+                setDonations(mappedDonations.length > 0 ? mappedDonations : mockDonations);
             } catch (error) {
                 console.error('Error fetching donations:', error);
                 // Fallback to mock data if API fails
@@ -270,15 +286,31 @@ export default function NgoAvailablePage() {
         }
     };
 
+    const [searchParams] = useSearchParams();
+    const searchQuery = searchParams.get('search')?.toLowerCase() || '';
+
+    // Filter and sort donations
+    const filteredDonations = useMemo(() => {
+        return donations.filter(d => {
+            if (!searchQuery) return true;
+            return (
+                d.title.toLowerCase().includes(searchQuery) ||
+                d.description.toLowerCase().includes(searchQuery) ||
+                (d.donor?.name || '').toLowerCase().includes(searchQuery) ||
+                d.foodType.toLowerCase().includes(searchQuery)
+            );
+        });
+    }, [donations, searchQuery]);
+
     const sortedDonations = useMemo(() => {
-        return [...donations].sort((a, b) => {
+        return [...filteredDonations].sort((a, b) => {
             const aUrgent = isUrgent(a.expiryTime);
             const bUrgent = isUrgent(b.expiryTime);
             if (aUrgent && !bUrgent) return -1;
             if (!aUrgent && bUrgent) return 1;
             return a.location.distance - b.location.distance;
         });
-    }, [donations]);
+    }, [filteredDonations]);
 
     // ---- Shared Map Component ----
     const renderMap = (height: string) => (
@@ -643,34 +675,51 @@ export default function NgoAvailablePage() {
                                             } ${donation.status === 'claimed' ? 'opacity-50' : ''}`}
                                         onClick={() => setSelectedDonation(donation)}>
                                         <CardContent className="p-3">
-                                            <div className="flex justify-between items-start">
-                                                <div className="flex-1">
-                                                    <h4 className="font-bold text-sm text-gray-900">{donation.title}</h4>
-                                                    <p className="text-xs text-gray-500 mt-0.5">{donation.donor.name}</p>
+                                            <div className="flex gap-3">
+                                                {/* Thumbnail */}
+                                                <div className="w-16 h-16 rounded-md overflow-hidden shrink-0 bg-gray-100 flex items-center justify-center">
+                                                    <img
+                                                        src={donation.imageUrl?.startsWith('http') ? donation.imageUrl : (donation.imageUrl ? `http://localhost:5001${donation.imageUrl}` : "https://placehold.co/600x400?text=Food")}
+                                                        alt={donation.title}
+                                                        className="w-full h-full object-cover"
+                                                        onError={(e) => {
+                                                            const target = e.target as HTMLImageElement;
+                                                            target.src = "https://placehold.co/600x400?text=Food";
+                                                            target.onerror = null; // Prevent infinite loop
+                                                        }}
+                                                    />
                                                 </div>
-                                                {isUrgent(donation.expiryTime) && donation.status === 'available' && (
-                                                    <span className="px-2 py-0.5 bg-gradient-to-r from-red-500 to-orange-500 text-white text-[10px] font-bold rounded-full animate-pulse">
-                                                        URGENT
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
-                                                <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {donation.location.distance} km</span>
-                                                <span className={`flex items-center gap-1 ${isUrgent(donation.expiryTime) ? 'text-red-600 font-medium' : ''}`}>
-                                                    <Clock className="w-3 h-3" /> {getTimeRemaining(donation.expiryTime)}
-                                                </span>
-                                            </div>
-                                            {/* Quick Action Buttons */}
-                                            <div className="flex gap-2 mt-3">
-                                                <button onClick={(e) => { e.stopPropagation(); setStreetViewDonation(donation); setIsExpanded(true); }}
-                                                    className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-[11px] font-semibold rounded-lg transition-all">
-                                                    <Eye className="w-3 h-3" /> 360° View
-                                                </button>
-                                                <a href={getDirectionsUrl(coords[0], coords[1])} target="_blank" rel="noopener noreferrer"
-                                                    onClick={(e) => e.stopPropagation()}
-                                                    className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[11px] font-semibold rounded-lg transition-all no-underline">
-                                                    <Navigation className="w-3 h-3" /> Directions
-                                                </a>
+                                                <div className="flex-1">
+                                                    <div className="flex justify-between items-start">
+                                                        <div className="flex-1">
+                                                            <h4 className="font-bold text-sm text-gray-900 line-clamp-1">{donation.title}</h4>
+                                                            <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{donation.donor.name}</p>
+                                                        </div>
+                                                        {isUrgent(donation.expiryTime) && donation.status === 'available' && (
+                                                            <span className="px-2 py-0.5 bg-gradient-to-r from-red-500 to-orange-500 text-white text-[10px] font-bold rounded-full animate-pulse">
+                                                                URGENT
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                                                        <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {donation.location.distance} km</span>
+                                                        <span className={`flex items-center gap-1 ${isUrgent(donation.expiryTime) ? 'text-red-600 font-medium' : ''}`}>
+                                                            <Clock className="w-3 h-3" /> {getTimeRemaining(donation.expiryTime)}
+                                                        </span>
+                                                    </div>
+                                                    {/* Quick Action Buttons */}
+                                                    <div className="flex gap-2 mt-3">
+                                                        <button onClick={(e) => { e.stopPropagation(); setStreetViewDonation(donation); setIsExpanded(true); }}
+                                                            className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-[11px] font-semibold rounded-lg transition-all">
+                                                            <Eye className="w-3 h-3" /> 360° View
+                                                        </button>
+                                                        <a href={getDirectionsUrl(coords[0], coords[1])} target="_blank" rel="noopener noreferrer"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                            className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[11px] font-semibold rounded-lg transition-all no-underline">
+                                                            <Navigation className="w-3 h-3" /> Directions
+                                                        </a>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </CardContent>
                                     </Card>
@@ -698,64 +747,89 @@ export default function NgoAvailablePage() {
                                 <Card key={donation._id}
                                     className={`bg-white transition-all hover:shadow-lg ${donation.status === 'claimed' ? 'opacity-60 bg-gray-50' : ''
                                         } ${isUrgent(donation.expiryTime) && donation.status === 'available' ? 'border-l-4 border-l-orange-500' : ''}`}>
-                                    <CardContent className="p-5">
-                                        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
-                                            <div className="flex-1">
-                                                <div className="flex items-start gap-3">
-                                                    <div className="p-2 bg-emerald-100 rounded-lg">
-                                                        <Utensils className="w-5 h-5 text-emerald-600" />
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <div className="flex items-center gap-2 flex-wrap">
-                                                            <h3 className="font-semibold text-lg text-gray-900">{donation.title}</h3>
-                                                            {isUrgent(donation.expiryTime) && donation.status === 'available' && (
-                                                                <span className="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs font-medium rounded-full flex items-center gap-1">
-                                                                    <AlertCircle className="w-3 h-3" /> Urgent
-                                                                </span>
-                                                            )}
-                                                            {donation.status === 'claimed' && (
-                                                                <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full flex items-center gap-1">
-                                                                    <CheckCircle2 className="w-3 h-3" /> Claimed
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                        <p className="text-gray-600 text-sm mt-1">{donation.description}</p>
-                                                        <div className="flex flex-wrap items-center gap-4 mt-3 text-sm">
-                                                            <span className="flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2 py-1 rounded">
-                                                                <Users className="w-4 h-4" /> {donation.servingsCount} servings
-                                                            </span>
-                                                            <span className="flex items-center gap-1 text-gray-600">
-                                                                <MapPin className="w-4 h-4" /> {donation.location.address} ({donation.location.distance} km)
-                                                            </span>
-                                                            <span className={`flex items-center gap-1 ${isUrgent(donation.expiryTime) ? 'text-orange-600 font-medium' : 'text-gray-600'}`}>
-                                                                <Clock className="w-4 h-4" /> {getTimeRemaining(donation.expiryTime)}
-                                                            </span>
-                                                        </div>
-                                                        <div className="mt-3 text-sm text-gray-500">
-                                                            <span className="font-medium">From:</span> {donation.donor?.name || 'Unknown Donor'}
-                                                        </div>
-                                                    </div>
+                                    <CardContent className="p-0">
+                                        <div className="flex flex-col md:flex-row h-full">
+                                            {/* Image Section */}
+                                            <div className="w-full md:w-48 h-48 md:h-auto relative shrink-0 bg-gray-100 flex items-center justify-center">
+                                                <img
+                                                    src={donation.imageUrl?.startsWith('http') ? donation.imageUrl : (donation.imageUrl ? `http://localhost:5001${donation.imageUrl}` : "https://placehold.co/600x400?text=Food")}
+                                                    alt={donation.title}
+                                                    className="w-full h-full object-cover"
+                                                    onError={(e) => {
+                                                        const target = e.target as HTMLImageElement;
+                                                        target.src = "https://placehold.co/600x400?text=Food";
+                                                        target.onerror = null; // Prevent infinite loop
+                                                    }}
+                                                />
+                                                <div className="absolute top-2 left-2 block md:hidden">
+                                                    {isUrgent(donation.expiryTime) && donation.status === 'available' && (
+                                                        <span className="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs font-medium rounded-full flex items-center gap-1">
+                                                            <AlertCircle className="w-3 h-3" /> Urgent
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
-                                            <div className="flex flex-col gap-2 md:items-end">
-                                                {donation.status === 'available' ? (
-                                                    <Button onClick={() => handleClaim(donation._id)} disabled={claimingId === donation._id}
-                                                        className="bg-emerald-600 hover:bg-emerald-700 min-w-[120px]">
-                                                        {claimingId === donation._id ? (
-                                                            <span className="flex items-center gap-2">
-                                                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                                                Claiming...
-                                                            </span>
-                                                        ) : 'Claim Now'}
-                                                    </Button>
-                                                ) : (
-                                                    <Button disabled variant="outline" className="min-w-[120px]">Claimed</Button>
-                                                )}
-                                                {donation.pickupWindow?.end && (
-                                                    <p className="text-xs text-gray-400">
-                                                        Pickup: {new Date(donation.pickupWindow.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                    </p>
-                                                )}
+
+                                            {/* Content Section */}
+                                            <div className="flex-1 p-5 flex flex-col justify-between">
+                                                <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+                                                    <div className="flex-1">
+                                                        <div className="flex items-start gap-3">
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center gap-2 flex-wrap">
+                                                                    <h3 className="font-semibold text-lg text-gray-900">{donation.title}</h3>
+                                                                    <span className="hidden md:flex">
+                                                                        {isUrgent(donation.expiryTime) && donation.status === 'available' && (
+                                                                            <span className="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs font-medium rounded-full flex items-center gap-1">
+                                                                                <AlertCircle className="w-3 h-3" /> Urgent
+                                                                            </span>
+                                                                        )}
+                                                                    </span>
+                                                                    {donation.status === 'claimed' && (
+                                                                        <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full flex items-center gap-1">
+                                                                            <CheckCircle2 className="w-3 h-3" /> Claimed
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <p className="text-gray-600 text-sm mt-1">{donation.description}</p>
+                                                                <div className="flex flex-wrap items-center gap-4 mt-3 text-sm">
+                                                                    <span className="flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2 py-1 rounded">
+                                                                        <Users className="w-4 h-4" /> {donation.servingsCount} servings
+                                                                    </span>
+                                                                    <span className="flex items-center gap-1 text-gray-600">
+                                                                        <MapPin className="w-4 h-4" /> {donation.location.address} ({donation.location.distance} km)
+                                                                    </span>
+                                                                    <span className={`flex items-center gap-1 ${isUrgent(donation.expiryTime) ? 'text-orange-600 font-medium' : 'text-gray-600'}`}>
+                                                                        <Clock className="w-4 h-4" /> {getTimeRemaining(donation.expiryTime)}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="mt-3 text-sm text-gray-500">
+                                                                    <span className="font-medium">From:</span> {donation.donor?.name || 'Unknown Donor'}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-2 md:items-end">
+                                                        {donation.status === 'available' ? (
+                                                            <Button onClick={() => handleClaim(donation._id)} disabled={claimingId === donation._id}
+                                                                className="bg-emerald-600 hover:bg-emerald-700 min-w-[120px]">
+                                                                {claimingId === donation._id ? (
+                                                                    <span className="flex items-center gap-2">
+                                                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                                        Claiming...
+                                                                    </span>
+                                                                ) : 'Claim Now'}
+                                                            </Button>
+                                                        ) : (
+                                                            <Button disabled variant="outline" className="min-w-[120px]">Claimed</Button>
+                                                        )}
+                                                        {donation.pickupWindow?.end && (
+                                                            <p className="text-xs text-gray-400">
+                                                                Pickup: {new Date(donation.pickupWindow.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </CardContent>

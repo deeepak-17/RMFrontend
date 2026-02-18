@@ -82,8 +82,8 @@ const Home = () => {
                             </CardHeader>
                             <CardContent>
                                 <Link to="/volunteer/tasks">
-                                    <Button className="w-full" size="lg" iconRight={<ArrowRight className="h-4 w-4" />}>
-                                        Go to My Tasks
+                                    <Button className="w-full gap-2" size="lg">
+                                        Go to My Tasks <ArrowRight className="h-4 w-4" />
                                     </Button>
                                 </Link>
                             </CardContent>

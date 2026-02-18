@@ -3,7 +3,8 @@ import {
     Users,
     ClipboardList,
     LogOut,
-    ShieldCheck
+    ShieldCheck,
+    Package
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -49,6 +50,20 @@ export function AdminSidebar() {
                             <Link to="/admin/dashboard" className="flex items-center gap-2">
                                 <LayoutDashboard className="size-4" />
                                 <span>Dashboard</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            asChild
+                            isActive={isActive("/admin/donations")}
+                            tooltip="Donations"
+                            className="data-[active=true]:bg-primary data-[active=true]:text-primary-foreground transition-all duration-200"
+                        >
+                            <Link to="/admin/donations" className="flex items-center gap-2">
+                                <Package className="size-4" />
+                                <span>Donations</span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
