@@ -1,68 +1,89 @@
 "use client";
 
-
 import { Link, useLocation, useSearchParams } from "react-router-dom";
-import { Image } from "@/components/ui/image";
-import { Search, MapPin, Bell } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Search, MapPin, Bell, LogOut } from "lucide-react";
 
 export const Navbar = () => {
   const pathname = useLocation().pathname;
   const [searchParams, setSearchParams] = useSearchParams();
+  const { user, logout } = useAuth();
 
   // Don't show on landing page
-  if (pathname === "/") return null;
+  if (pathname === "/" || pathname === "/landing") return null;
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value;
     if (term) {
-      const newParams = { ...Object.fromEntries(searchParams), search: term };
-      setSearchParams(newParams);
+      setSearchParams({ ...Object.fromEntries(searchParams), search: term });
     } else {
-      const newParams = Object.fromEntries(searchParams);
-      delete newParams.search;
-      setSearchParams(newParams);
+      const p = Object.fromEntries(searchParams);
+      delete p.search;
+      setSearchParams(p);
     }
   };
 
+  const initials = user?.name
+    ? user.name.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2)
+    : "U";
+
   return (
-    <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-100 px-4 py-3 md:px-8">
-      <div className="container mx-auto flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="relative w-10 h-10">
-            <Image
-              src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/50a2a612-5acf-432e-95f7-7652884b81f4-toogoodtogo-com/assets/icons/eb37301e40a80bb500e31e5a939924c582ad7744-512x512-1.png"
-              alt="ResQMeals"
-              fill
-              className="object-contain"
-            />
+    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm px-4 py-3 md:px-8">
+      <div className="container mx-auto flex items-center gap-4 justify-between">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-md shadow-orange-500/20">
+            <span className="text-white font-black text-base">R</span>
           </div>
-          <span className="text-xl font-bold tracking-tight text-primary hidden sm:block">
+          <span className="text-gray-900 font-bold text-[17px] tracking-tight hidden sm:block">
             ResQMeals
           </span>
         </Link>
 
-        <div className="flex-1 max-w-md mx-4 md:mx-8">
+        {/* Search bar */}
+        <div className="flex-1 max-w-md">
           <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-primary transition-colors" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-emerald-600 transition-colors" />
             <input
               type="text"
               placeholder="Search for surplus food..."
-              className="w-full bg-gray-50 border-none rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all"
-              value={searchParams.get('search') || ''}
+              className="w-full bg-gray-50 border border-gray-100 rounded-full py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-300 transition-all"
+              value={searchParams.get("search") || ""}
               onChange={handleSearch}
             />
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-1.5 text-gray-600 hover:text-primary transition-colors px-3 py-2 rounded-xl hover:bg-gray-50">
-            <MapPin className="w-5 h-5" />
-            <span className="text-sm font-semibold hidden lg:block">Coimbatore</span>
+        {/* Right controls */}
+        <div className="flex items-center gap-2">
+          {/* Location chip */}
+          <button className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-sm font-semibold rounded-full hover:bg-emerald-100 transition-colors">
+            <MapPin className="w-3.5 h-3.5" />
+            <span>Coimbatore</span>
           </button>
-          <button className="relative p-2 text-gray-600 hover:text-primary transition-colors rounded-xl hover:bg-gray-50">
-            <Bell className="w-6 h-6" />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full border-2 border-white"></span>
+
+          {/* Bell */}
+          <button className="relative p-2 text-gray-500 hover:text-emerald-600 rounded-xl hover:bg-gray-50 transition-colors">
+            <Bell className="w-5 h-5" />
+            <span className="absolute top-2 right-2 w-2 h-2 bg-orange-500 rounded-full border-2 border-white" />
           </button>
+
+          {/* User avatar */}
+          {user && (
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                {initials}
+              </div>
+              <button
+                onClick={logout}
+                className="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-gray-500 hover:text-red-600 text-xs font-semibold rounded-xl hover:bg-red-50 transition-all"
+                title="Logout"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Logout</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

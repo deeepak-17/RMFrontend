@@ -1,28 +1,28 @@
-const MissionStatement = () => {
+export default function MissionStatement() {
   return (
-    <section
-      className="bg-[#064E3B] text-white py-[80px] md:py-[120px] px-6 flex flex-col items-center text-center w-full"
-      aria-labelledby="mission-title"
-    >
-      <div className="max-w-[1280px] w-full">
-        {/* Large Centered Teal-Colored Heading */}
-        <h2
-          id="mission-title"
-          className="text-[#14B8A6] font-display text-[32px] md:text-[48px] font-bold leading-[1.2] tracking-[-0.01em] mb-6 max-w-[1000px] mx-auto"
-        >
+    <section className="relative w-full py-24 bg-gradient-to-br from-emerald-950 to-teal-900 border-t border-white/10 overflow-hidden">
+      {/* Subtle radial glow */}
+      <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+        <div className="w-[600px] h-[300px] rounded-full bg-teal-400/8 blur-3xl" />
+      </div>
+
+      <div className="relative z-10 container mx-auto px-6 max-w-[900px] text-center">
+        {/* Section label */}
+        <span className="inline-block mb-5 px-4 py-1.5 rounded-full bg-teal-500/15 border border-teal-400/20 text-teal-300 text-xs font-bold uppercase tracking-widest">
+          Our Mission
+        </span>
+
+        <h2 className="text-4xl md:text-5xl font-bold leading-tight mb-6 text-gradient-teal">
           ResQMeals is on a mission to end food waste while feeding communities that need it most.
         </h2>
 
-        {/* Descriptive Paragraph */}
         <p
-          className="text-white font-sans text-[18px] md:text-[20px] font-normal leading-[1.6] max-w-[800px] mx-auto opacity-90"
+          className="text-white/70 text-xl leading-relaxed max-w-3xl mx-auto"
+          style={{ margin: "0 auto" }}
         >
-          We connect restaurants, corporate canteens, and event organizers with local NGOs and shelters.
-          Every meal rescued is a step toward a hunger-free, sustainable future.
+          We bridge the gap between surplus food and hunger — connecting restaurants, catering teams, and event organisers directly with NGOs, shelters, and volunteers who can put that food to good use.
         </p>
       </div>
     </section>
   );
-};
-
-export default MissionStatement;
+}

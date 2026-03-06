@@ -13,7 +13,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Package, Users, Leaf, Calendar, MapPin, CheckCircle2, Clock, Truck, Filter, Loader2 } from 'lucide-react';
+import { ArrowLeft, Package, Users, Leaf, Calendar, MapPin, CheckCircle2, Clock, Filter, Loader2 } from 'lucide-react';
 import { donationsApi } from '@/lib/api';
 import { FoodDonation } from '@/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
