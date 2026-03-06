@@ -56,6 +56,19 @@ export default function VolunteerTasksPage() {
         }
     };
 
+    const handleDecline = async (taskId: string) => {
+        try {
+            setActionLoading(taskId);
+            await tasksApi.decline(taskId);
+            await fetchTasks(); // Refresh list
+        } catch (error) {
+            console.error('Error declining task:', error);
+            alert("Failed to decline task.");
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
     const handleUpdateStatus = async (taskId: string, status: 'picked' | 'delivered') => {
         try {
             setActionLoading(taskId);
@@ -130,14 +143,24 @@ export default function VolunteerTasksPage() {
 
                                         <div className="flex gap-2">
                                             {task.status === 'assigned' && (
-                                                <Button
-                                                    onClick={() => handleAccept(task._id)}
-                                                    className="bg-emerald-600 hover:bg-emerald-700"
-                                                    disabled={actionLoading === task._id}
-                                                >
-                                                    {actionLoading === task._id ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                                                    Accept Task
-                                                </Button>
+                                                <>
+                                                    <Button
+                                                        onClick={() => handleAccept(task._id)}
+                                                        className="bg-emerald-600 hover:bg-emerald-700"
+                                                        disabled={actionLoading === task._id}
+                                                    >
+                                                        {actionLoading === task._id ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                                                        Accept
+                                                    </Button>
+                                                    <Button
+                                                        onClick={() => handleDecline(task._id)}
+                                                        className="bg-red-600 hover:bg-red-700 ml-2"
+                                                        disabled={actionLoading === task._id}
+                                                    >
+                                                        {actionLoading === task._id ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                                                        Decline
+                                                    </Button>
+                                                </>
                                             )}
                                             {task.status === 'accepted' && (
                                                 <Button

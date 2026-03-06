@@ -1,72 +1,78 @@
-import { Utensils, MapPin, Leaf, Heart } from 'lucide-react';
+import { Utensils, MapPin, Leaf, Heart } from "lucide-react";
 
-const sellingPoints = [
+const points = [
   {
-    title: 'Rescue Surplus Food',
-    description: 'Prevent perfectly good food from going to waste',
     icon: Utensils,
-    color: 'text-orange-400',
-    bgColor: 'bg-orange-400/20',
+    color: "text-orange-400",
+    bg: "bg-orange-500/15 border-orange-400/20",
+    title: "Rescue Surplus Food",
+    desc: "Post surplus food from your restaurant, canteen, or event in under 2 minutes.",
   },
   {
-    title: 'Find Food Nearby',
-    description: 'Connect with donors in your area using geolocation',
     icon: MapPin,
-    color: 'text-emerald-400',
-    bgColor: 'bg-emerald-400/20',
+    color: "text-emerald-400",
+    bg: "bg-emerald-500/15 border-emerald-400/20",
+    title: "Find Food Nearby",
+    desc: "NGOs see real-time donations on a map and can claim them instantly.",
   },
   {
-    title: 'Reduce Carbon Footprint',
-    description: 'Every meal saved prevents CO₂ emissions',
     icon: Leaf,
-    color: 'text-teal-400',
-    bgColor: 'bg-teal-400/20',
+    color: "text-teal-400",
+    bg: "bg-teal-500/15 border-teal-400/20",
+    title: "Reduce Carbon Footprint",
+    desc: "Every meal rescued prevents CO₂ from food decomposing in landfills.",
   },
   {
-    title: 'Feed Communities',
-    description: 'Help NGOs and shelters serve those in need',
     icon: Heart,
-    color: 'text-pink-400',
-    bgColor: 'bg-pink-400/20',
+    color: "text-pink-400",
+    bg: "bg-pink-500/15 border-pink-400/20",
+    title: "Feed Communities",
+    desc: "Volunteers bridge the last mile, ensuring food reaches those who need it.",
   },
 ];
 
 export default function SellingPoints() {
   return (
-    <section
-      className="bg-[#064E3B] text-white section-padding py-[80px] md:py-[120px]"
-      aria-labelledby="selling-points-title"
-    >
-      <div className="container mx-auto px-6 max-w-[1280px]">
-        <div className="text-center mb-16 md:mb-24">
-          <p className="font-nav text-[#F97316] mb-4 tracking-widest uppercase">
+    <section className="relative py-28 bg-gradient-to-b from-emerald-950 to-emerald-900 overflow-hidden">
+      {/* Background pattern */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
+        style={{
+          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
+
+      <div className="relative z-10 container mx-auto px-6 max-w-[1280px]">
+        {/* Header */}
+        <div className="text-center mb-16">
+          <span className="inline-block mb-4 px-4 py-1.5 rounded-full bg-orange-500/15 border border-orange-400/20 text-orange-300 text-xs font-bold uppercase tracking-widest">
             Why use
-          </p>
-          <h2
-            id="selling-points-title"
-            className="text-[40px] md:text-[48px] font-extrabold leading-tight tracking-tight uppercase"
-          >
+          </span>
+          <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
             RESQMEALS
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
-          {sellingPoints.map((point, index) => {
+        {/* Cards grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {points.map((point, i) => {
             const Icon = point.icon;
             return (
               <div
-                key={index}
-                className="group flex flex-col items-center text-center cursor-default"
+                key={point.title}
+                className="group glass-dark rounded-2xl p-8 flex flex-col items-center text-center hover:bg-white/10 hover:-translate-y-2 transition-all duration-300 cursor-default border border-white/10 hover:border-white/20"
+                style={{ animationDelay: `${i * 100}ms` }}
               >
-                <div className={`relative w-[140px] h-[140px] mb-8 rounded-full ${point.bgColor} flex items-center justify-center transition-transform duration-300 ease-in-out group-hover:scale-110`}>
-                  <Icon className={`w-16 h-16 ${point.color}`} strokeWidth={1.5} />
+                <div
+                  className={`w-20 h-20 rounded-2xl ${point.bg} border flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}
+                >
+                  <Icon className={`w-9 h-9 ${point.color}`} strokeWidth={1.5} />
                 </div>
-
-                <h3 className="text-xl md:text-2xl font-bold leading-[1.3] px-4 mb-2">
+                <h3 className="text-white text-lg font-bold mb-3 tracking-tight">
                   {point.title}
                 </h3>
-                <p className="text-white/70 text-sm px-4">
-                  {point.description}
+                <p className="text-white/60 text-sm leading-relaxed" style={{ margin: 0 }}>
+                  {point.desc}
                 </p>
               </div>
             );

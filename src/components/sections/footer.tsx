@@ -1,89 +1,68 @@
-import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Twitter, Linkedin, Mail } from 'lucide-react';
+import { Link } from "react-router-dom";
+import { Facebook, Instagram, Twitter, Linkedin, Mail } from "lucide-react";
 
-const footerLinks = [
-  {
-    title: 'Platform',
-    links: [
-      { label: 'How it Works', href: '#' },
-      { label: 'For Donors', href: '/register' },
-      { label: 'For NGOs', href: '/register' },
-      { label: 'For Volunteers', href: '/register' },
-    ],
-  },
-  {
-    title: 'Company',
-    links: [
-      { label: 'About Us', href: '#' },
-      { label: 'Our Mission', href: '#' },
-      { label: 'Impact Report', href: '#' },
-      { label: 'Contact', href: '#' },
-    ],
-  },
-  {
-    title: 'Legal',
-    links: [
-      { label: 'Privacy Policy', href: '#' },
-      { label: 'Terms of Service', href: '#' },
-      { label: 'Cookie Policy', href: '#' },
-    ],
-  },
+const links = {
+  Platform: ["How it Works", "Find Donations", "Post Food", "Volunteer"],
+  Company: ["About Us", "Mission", "Impact", "Blog"],
+  Legal: ["Privacy Policy", "Terms of Service", "Cookie Policy"],
+};
+
+const socials = [
+  { icon: Facebook, label: "Facebook" },
+  { icon: Instagram, label: "Instagram" },
+  { icon: Twitter, label: "Twitter" },
+  { icon: Linkedin, label: "LinkedIn" },
+  { icon: Mail, label: "Email" },
 ];
 
-const socialIcons = [
-  { icon: Facebook, href: '#', label: 'Facebook' },
-  { icon: Instagram, href: '#', label: 'Instagram' },
-  { icon: Twitter, href: '#', label: 'Twitter' },
-  { icon: Linkedin, href: '#', label: 'LinkedIn' },
-  { icon: Mail, href: 'mailto:contact@resqmeals.com', label: 'Email' },
-];
-
-const Footer = () => {
+export default function Footer() {
   return (
-    <footer className="w-full bg-emerald-900 text-white pt-16 pb-8">
-      <div className="container mx-auto px-6 max-w-[1280px]">
-        {/* Main Footer Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-          {/* Brand Column */}
-          <div className="col-span-2 md:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-lg">R</span>
+    <footer className="w-full bg-emerald-950 text-white">
+      {/* Top border gradient */}
+      <div className="h-px bg-gradient-to-r from-transparent via-emerald-700 to-transparent" />
+
+      <div className="container mx-auto px-6 max-w-[1280px] pt-16 pb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
+          {/* Brand column */}
+          <div className="lg:col-span-2">
+            <Link to="/" className="flex items-center gap-2.5 mb-5">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-md shadow-orange-500/30">
+                <span className="text-white font-black text-base tracking-tight">R</span>
               </div>
-              <span className="text-white font-bold text-xl">ResQMeals</span>
+              <span className="text-white font-bold text-[17px] tracking-tight">ResQMeals</span>
             </Link>
-            <p className="text-white/60 text-sm leading-relaxed mb-6">
-              Connecting surplus food with those who need it. Fighting food waste, feeding communities.
+            <p className="text-white/50 text-sm leading-relaxed max-w-xs mb-6" style={{ margin: "0 0 24px" }}>
+              Connecting surplus food with communities in need. Every meal rescued is a step toward a hunger-free, waste-free world.
             </p>
-            {/* Social Icons */}
-            <div className="flex items-center gap-4">
-              {socialIcons.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  className="text-white/60 hover:text-orange-400 transition-colors"
-                  aria-label={social.label}
+
+            {/* Social icons */}
+            <div className="flex items-center gap-2">
+              {socials.map(({ icon: Icon, label }) => (
+                <button
+                  key={label}
+                  aria-label={label}
+                  className="w-9 h-9 rounded-xl bg-white/8 hover:bg-orange-500 flex items-center justify-center text-white/50 hover:text-white transition-all duration-200"
                 >
-                  <social.icon size={20} />
-                </a>
+                  <Icon className="w-4 h-4" />
+                </button>
               ))}
             </div>
           </div>
 
-          {/* Links Columns */}
-          {footerLinks.map((section) => (
-            <div key={section.title}>
-              <h3 className="text-sm font-bold uppercase tracking-wide text-white/90 mb-4">
-                {section.title}
-              </h3>
+          {/* Link columns */}
+          {Object.entries(links).map(([section, items]) => (
+            <div key={section}>
+              <h4 className="text-white/40 text-xs font-bold uppercase tracking-widest mb-5">
+                {section}
+              </h4>
               <ul className="space-y-3">
-                {section.links.map((link) => (
-                  <li key={link.label}>
+                {items.map((item) => (
+                  <li key={item}>
                     <a
-                      href={link.href}
-                      className="text-sm text-white/60 hover:text-white transition-colors"
+                      href="#"
+                      className="text-white/60 hover:text-white text-sm transition-colors duration-200"
                     >
-                      {link.label}
+                      {item}
                     </a>
                   </li>
                 ))}
@@ -92,18 +71,16 @@ const Footer = () => {
           ))}
         </div>
 
-        {/* Bottom Section */}
-        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-white/50">
-            © {new Date().getFullYear()} ResQMeals. All rights reserved.
+        {/* Bottom bar */}
+        <div className="border-t border-white/8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-white/30 text-xs">
+            © 2026 ResQMeals. All rights reserved.
           </p>
-          <p className="text-sm text-white/50">
+          <p className="text-white/30 text-xs">
             Made with ❤️ to fight food waste
           </p>
         </div>
       </div>
     </footer>
   );
-};
-
-export default Footer;
+}

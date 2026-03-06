@@ -2,19 +2,18 @@ import { useState, useEffect } from 'react';
 import { adminApi } from '@/lib/api';
 import { FoodDonation } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ChainOfCustodyTimeline } from "@/components/donation/ChainOfCustodyTimeline";
-import { Loader2, Search, Package, Clock, User, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Loader2, Package, Clock, User } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function AdminDonationsPage() {
     const [donations, setDonations] = useState<FoodDonation[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
+    const [page] = useState(1);
     const [statusFilter, setStatusFilter] = useState<string>('all');
 
     const fetchDonations = async () => {
@@ -24,7 +23,7 @@ export default function AdminDonationsPage() {
             // Expected response: { donations: [], pagination: { ... } }
             if (response.data && response.data.donations) {
                 setDonations(response.data.donations);
-                setTotalPages(response.data.pagination?.pages || 1);
+                // pagination not yet used in UI
             }
         } catch (error) {
             console.error("Failed to fetch donations", error);
