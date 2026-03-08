@@ -13,6 +13,7 @@ import type { PickupTask } from '@/types';
 import { tasksApi } from '@/lib/api';
 import { VolunteerMapView } from '@/components/volunteer/VolunteerMapView';
 import { toast } from 'sonner';
+import { History } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -21,6 +22,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function VolunteerTasksPage() {
     const [tasks, setTasks] = useState<PickupTask[]>([]);
@@ -84,6 +86,8 @@ export default function VolunteerTasksPage() {
         }
     };
 
+    const activeTasks = tasks.filter((t: any) => ['assigned', 'accepted', 'picked'].includes(t.status?.toLowerCase()));
+
     return (
         <div className="min-h-screen bg-neutral-50 p-4">
             <div className="max-w-4xl mx-auto pb-20">
@@ -122,164 +126,226 @@ export default function VolunteerTasksPage() {
                         </CardContent>
                     </Card>
                 ) : (
-                    <div className="space-y-4">
-                        {tasks.filter((t: any) => ['assigned', 'accepted', 'picked'].includes(t.status)).map((task: any) => {
-                            const donation = task.donationId;
-                            const ngo = task.ngoId;
-                            const isActive = ['accepted', 'picked'].includes(task.status);
+                    <Tabs defaultValue="active" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2 mb-6 h-12 bg-white rounded-xl shadow-sm border border-gray-100 p-1">
+                            <TabsTrigger value="active" className="rounded-lg font-bold data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:shadow-sm">
+                                Active Tasks ({activeTasks.length})
+                            </TabsTrigger>
+                            <TabsTrigger value="past" className="rounded-lg font-bold data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700 data-[state=active]:shadow-sm">
+                                Past Tasks ({tasks.length - activeTasks.length})
+                            </TabsTrigger>
+                        </TabsList>
 
-                            // Reversing GeoJSON [lng, lat] for Leaflet [lat, lng]
-                            const pickupCoords: [number, number] = donation?.location?.coordinates
-                                ? [donation.location.coordinates[1], donation.location.coordinates[0]]
-                                : [0, 0];
-                            const deliveryCoords: [number, number] = ngo?.location?.coordinates
-                                ? [ngo.location.coordinates[1], ngo.location.coordinates[0]]
-                                : [pickupCoords[0] + 0.01, pickupCoords[1] + 0.01];
+                        <TabsContent value="active" className="space-y-4 outline-none">
+                            {activeTasks.length === 0 ? (
+                                <Card className="border-dashed bg-transparent shadow-none border-2">
+                                    <CardContent className="text-center py-12">
+                                        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                                            <Package className="w-8 h-8 text-emerald-600/50" />
+                                        </div>
+                                        <p className="text-gray-600 font-medium">No active tasks right now.</p>
+                                        <p className="text-sm text-gray-400 mt-2">You'll be pinged when a pickup comes in.</p>
+                                    </CardContent>
+                                </Card>
+                            ) : (
+                                activeTasks.map((task: any) => {
+                                    const donation = task.donationId;
+                                    const ngo = task.ngoId;
+                                    const isActive = ['accepted', 'picked'].includes(task.status);
 
-                            return (
-                                <Card key={task._id} className={`overflow-hidden transition-all ${isActive ? 'ring-1 ring-emerald-500 shadow-md' : ''}`}>
-                                    <CardContent className="p-0">
-                                        <div className="p-4">
-                                            <div className="flex justify-between items-start mb-4">
-                                                <div>
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <h3 className="font-semibold text-lg">{donation?.title || 'Pickup Task'}</h3>
-                                                        {new Date(donation?.expiryTime).getTime() < Date.now() ? (
-                                                            <span className="px-2 py-0.5 text-[10px] font-bold bg-red-100 text-red-700 rounded-full">
-                                                                EXPIRED
+                                    // Reversing GeoJSON [lng, lat] for Leaflet [lat, lng]
+                                    const pickupCoords: [number, number] = donation?.location?.coordinates
+                                        ? [donation.location.coordinates[1], donation.location.coordinates[0]]
+                                        : [0, 0];
+                                    const deliveryCoords: [number, number] = ngo?.location?.coordinates
+                                        ? [ngo.location.coordinates[1], ngo.location.coordinates[0]]
+                                        : [pickupCoords[0] + 0.01, pickupCoords[1] + 0.01];
+
+                                    return (
+                                        <Card key={task._id} className={`overflow-hidden transition-all ${isActive ? 'ring-1 ring-emerald-500 shadow-md' : ''}`}>
+                                            <CardContent className="p-0">
+                                                <div className="p-4">
+                                                    <div className="flex justify-between items-start mb-4">
+                                                        <div>
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <h3 className="font-semibold text-lg">{donation?.title || 'Pickup Task'}</h3>
+                                                                {new Date(donation?.expiryTime).getTime() < Date.now() ? (
+                                                                    <span className="px-2 py-0.5 text-[10px] font-bold bg-red-100 text-red-700 rounded-full">
+                                                                        EXPIRED
+                                                                    </span>
+                                                                ) : new Date(donation?.expiryTime).getTime() - Date.now() < 4 * 60 * 60 * 1000 && (
+                                                                    <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-700 rounded-full">
+                                                                        EXPIRING SOON
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <span className={`inline-block px-2.5 py-0.5 text-[10px] font-bold rounded-full tracking-wider ${task.status === 'assigned' ? 'bg-slate-100 text-slate-600' :
+                                                                task.status === 'accepted' ? 'bg-blue-100 text-blue-700' :
+                                                                    task.status === 'picked' ? 'bg-emerald-100 text-emerald-700' :
+                                                                        'bg-gray-100 text-gray-500'
+                                                                }`}>
+                                                                {task.status.toUpperCase()}
                                                             </span>
-                                                        ) : new Date(donation?.expiryTime).getTime() - Date.now() < 4 * 60 * 60 * 1000 && (
-                                                            <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-700 rounded-full">
-                                                                EXPIRING SOON
-                                                            </span>
-                                                        )}
+                                                            {task.status === 'delivered' && task.deliveredAt && (
+                                                                <span className="ml-2 text-[10px] text-gray-400 font-medium">
+                                                                    at {new Date(task.deliveredAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Impact</div>
+                                                            <div className="text-sm font-bold text-emerald-600 flex items-center justify-end gap-1">
+                                                                <Check className="w-3.5 h-3.5" />
+                                                                +10 Credits
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <span className={`inline-block px-2.5 py-0.5 text-[10px] font-bold rounded-full tracking-wider ${task.status === 'assigned' ? 'bg-slate-100 text-slate-600' :
-                                                        task.status === 'accepted' ? 'bg-blue-100 text-blue-700' :
-                                                            task.status === 'picked' ? 'bg-emerald-100 text-emerald-700' :
-                                                                'bg-gray-100 text-gray-500'
-                                                        }`}>
-                                                        {task.status.toUpperCase()}
-                                                    </span>
-                                                    {task.status === 'delivered' && task.deliveredAt && (
-                                                        <span className="ml-2 text-[10px] text-gray-400 font-medium">
-                                                            at {new Date(task.deliveredAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                        </span>
+
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+                                                        <div className="bg-white p-3 rounded-lg border border-gray-100">
+                                                            <div className="flex items-center gap-2 mb-2 font-bold text-xs text-gray-400 uppercase tracking-wider">
+                                                                <Package className="w-3.5 h-3.5 text-emerald-600" />
+                                                                <span>Pickup From</span>
+                                                            </div>
+                                                            <p className="text-sm text-gray-800 font-medium leading-tight">{donation?.location?.address || 'Pickup address not specified'}</p>
+                                                            <div className="mt-2 text-[10px] text-gray-400 font-medium flex items-center gap-2">
+                                                                <span>{donation?.quantity || 'Standard'} qty</span>
+                                                                <span>•</span>
+                                                                <span>ID: #{task._id.slice(-6)}</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="bg-white p-3 rounded-lg border border-gray-100">
+                                                            <div className="flex items-center gap-2 mb-2 font-bold text-xs text-gray-400 uppercase tracking-wider">
+                                                                <MapPin className="w-3.5 h-3.5 text-orange-600" />
+                                                                <span>Deliver To</span>
+                                                            </div>
+                                                            <p className="text-sm text-gray-800 font-medium leading-tight">{ngo?.name || 'Authorized NGO'}</p>
+                                                            <p className="text-[10px] text-gray-400 mt-1 truncate">{ngo?.address || 'Delivery point info provided'}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    {showMapForTask === task._id && (
+                                                        <div className="mb-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                                                            <VolunteerMapView
+                                                                pickup={pickupCoords}
+                                                                delivery={deliveryCoords}
+                                                                pickupAddress={donation?.location?.address}
+                                                                deliveryAddress={ngo?.address}
+                                                                taskStatus={task.status}
+                                                            />
+                                                        </div>
                                                     )}
-                                                </div>
-                                                <div className="text-right">
-                                                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Impact</div>
-                                                    <div className="text-sm font-bold text-emerald-600 flex items-center justify-end gap-1">
-                                                        <Check className="w-3.5 h-3.5" />
-                                                        +10 Credits
-                                                    </div>
-                                                </div>
-                                            </div>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-                                                <div className="bg-white p-3 rounded-lg border border-gray-100">
-                                                    <div className="flex items-center gap-2 mb-2 font-bold text-xs text-gray-400 uppercase tracking-wider">
-                                                        <Package className="w-3.5 h-3.5 text-emerald-600" />
-                                                        <span>Pickup From</span>
-                                                    </div>
-                                                    <p className="text-sm text-gray-800 font-medium leading-tight">{donation?.location?.address || 'Pickup address not specified'}</p>
-                                                    <div className="mt-2 text-[10px] text-gray-400 font-medium flex items-center gap-2">
-                                                        <span>{donation?.quantity || 'Standard'} qty</span>
-                                                        <span>•</span>
-                                                        <span>ID: #{task._id.slice(-6)}</span>
-                                                    </div>
-                                                </div>
-
-                                                <div className="bg-white p-3 rounded-lg border border-gray-100">
-                                                    <div className="flex items-center gap-2 mb-2 font-bold text-xs text-gray-400 uppercase tracking-wider">
-                                                        <MapPin className="w-3.5 h-3.5 text-orange-600" />
-                                                        <span>Deliver To</span>
-                                                    </div>
-                                                    <p className="text-sm text-gray-800 font-medium leading-tight">{ngo?.name || 'Authorized NGO'}</p>
-                                                    <p className="text-[10px] text-gray-400 mt-1 truncate">{ngo?.address || 'Delivery point info provided'}</p>
-                                                </div>
-                                            </div>
-
-                                            {showMapForTask === task._id && (
-                                                <div className="mb-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                                                    <VolunteerMapView
-                                                        pickup={pickupCoords}
-                                                        delivery={deliveryCoords}
-                                                        pickupAddress={donation?.location?.address}
-                                                        deliveryAddress={ngo?.address}
-                                                        taskStatus={task.status}
-                                                    />
-                                                </div>
-                                            )}
-
-                                            {['assigned', 'accepted'].includes(task.status) && (
-                                                <div className="flex flex-wrap gap-2 pt-2">
-                                                    {task.status === 'assigned' && (
-                                                        <Button
-                                                            onClick={() => handleAccept(task._id)}
-                                                            className="bg-emerald-600 hover:bg-emerald-700 flex-1 h-9"
-                                                            disabled={actionLoading === task._id || new Date(donation?.expiryTime).getTime() < Date.now()}
-                                                        >
-                                                            {actionLoading === task._id ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Check className="w-4 h-4 mr-2" />}
-                                                            {new Date(donation?.expiryTime).getTime() < Date.now() ? 'Cannot Accept (Expired)' : 'Accept Task'}
-                                                        </Button>
+                                                    {['assigned', 'accepted'].includes(task.status) && (
+                                                        <div className="flex flex-wrap gap-2 pt-2">
+                                                            {task.status === 'assigned' && (
+                                                                <Button
+                                                                    onClick={() => handleAccept(task._id)}
+                                                                    className="bg-emerald-600 hover:bg-emerald-700 flex-1 h-9"
+                                                                    disabled={actionLoading === task._id || new Date(donation?.expiryTime).getTime() < Date.now()}
+                                                                >
+                                                                    {actionLoading === task._id ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Check className="w-4 h-4 mr-2" />}
+                                                                    {new Date(donation?.expiryTime).getTime() < Date.now() ? 'Cannot Accept (Expired)' : 'Accept Task'}
+                                                                </Button>
+                                                            )}
+                                                            {task.status === 'accepted' && (
+                                                                <Button
+                                                                    onClick={() => handleUpdateStatus(task._id, 'picked')}
+                                                                    className="bg-emerald-600 hover:bg-emerald-700 flex-1 h-9"
+                                                                    disabled={actionLoading === task._id}
+                                                                >
+                                                                    {actionLoading === task._id ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Package className="w-4 h-4 mr-2" />}
+                                                                    Mark as Picked
+                                                                </Button>
+                                                            )}
+                                                            <Button
+                                                                variant="outline"
+                                                                onClick={async () => {
+                                                                    if (confirm("Are you sure? This will automatically reassign the task.")) {
+                                                                        try {
+                                                                            setActionLoading(task._id);
+                                                                            await tasksApi.decline(task._id);
+                                                                            toast.success("Task reassigned.");
+                                                                            await fetchTasks();
+                                                                        } catch (e) { toast.error("Failed to decline."); } finally { setActionLoading(null); }
+                                                                    }
+                                                                }}
+                                                                className="border-red-200 text-red-600 hover:bg-red-50 h-9"
+                                                                disabled={actionLoading === task._id}
+                                                            >
+                                                                Decline
+                                                            </Button>
+                                                        </div>
                                                     )}
-                                                    {task.status === 'accepted' && (
+                                                    {task.status === 'picked' && (
                                                         <Button
-                                                            onClick={() => handleUpdateStatus(task._id, 'picked')}
+                                                            onClick={() => setConfirmDeliveryId(task._id)}
                                                             className="bg-emerald-600 hover:bg-emerald-700 flex-1 h-9"
                                                             disabled={actionLoading === task._id}
                                                         >
-                                                            {actionLoading === task._id ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Package className="w-4 h-4 mr-2" />}
-                                                            Mark as Picked
+                                                            {actionLoading === task._id ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Check className="w-4 h-4 mr-2" />}
+                                                            Mark as Delivered
                                                         </Button>
                                                     )}
-                                                    <Button
-                                                        variant="outline"
-                                                        onClick={async () => {
-                                                            if (confirm("Are you sure? This will automatically reassign the task.")) {
-                                                                try {
-                                                                    setActionLoading(task._id);
-                                                                    await tasksApi.decline(task._id);
-                                                                    toast.success("Task reassigned.");
-                                                                    await fetchTasks();
-                                                                } catch (e) { toast.error("Failed to decline."); } finally { setActionLoading(null); }
-                                                            }
-                                                        }}
-                                                        className="border-red-200 text-red-600 hover:bg-red-50 h-9"
-                                                        disabled={actionLoading === task._id}
-                                                    >
-                                                        Decline
-                                                    </Button>
-                                                </div>
-                                            )}
-                                            {task.status === 'picked' && (
-                                                <Button
-                                                    onClick={() => setConfirmDeliveryId(task._id)}
-                                                    className="bg-emerald-600 hover:bg-emerald-700 flex-1 h-9"
-                                                    disabled={actionLoading === task._id}
-                                                >
-                                                    {actionLoading === task._id ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Check className="w-4 h-4 mr-2" />}
-                                                    Mark as Delivered
-                                                </Button>
-                                            )}
 
-                                            {isActive && (
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => setShowMapForTask(showMapForTask === task._id ? null : task._id)}
-                                                    className={`h-9 w-9 ${showMapForTask === task._id ? 'text-emerald-600 bg-emerald-50' : 'text-gray-400'}`}
-                                                >
-                                                    {showMapForTask === task._id ? <X className="w-5 h-5" /> : <MapIcon className="w-5 h-5" />}
-                                                </Button>
-                                            )}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            );
-                        })}
-                    </div>
+                                                    {isActive && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() => setShowMapForTask(showMapForTask === task._id ? null : task._id)}
+                                                            className={`h-9 w-9 ${showMapForTask === task._id ? 'text-emerald-600 bg-emerald-50' : 'text-gray-400'}`}
+                                                        >
+                                                            {showMapForTask === task._id ? <X className="w-5 h-5" /> : <MapIcon className="w-5 h-5" />}
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    );
+                                })
+                            )}
+                        </TabsContent>
+
+                        <TabsContent value="past" className="space-y-4 outline-none pt-2">
+                            {tasks.length - activeTasks.length === 0 ? (
+                                <div className="text-center py-10 bg-white rounded-xl border border-gray-100 shadow-sm">
+                                    <History className="w-8 h-8 text-gray-300 mx-auto mb-3" />
+                                    <p className="text-gray-500 font-medium text-sm">No past tasks found.</p>
+                                </div>
+                            ) : (
+                                tasks.filter((t: any) => !['assigned', 'accepted', 'picked'].includes(t.status?.toLowerCase())).map((task: any) => {
+                                    const donation = task.donationId;
+                                    const ngo = task.ngoId;
+
+                                    return (
+                                        <Card key={task._id} className="overflow-hidden border-gray-100 shadow-sm opacity-80">
+                                            <CardContent className="p-4">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <div>
+                                                        <h3 className="font-semibold text-gray-800">{donation?.title || 'Pickup Task'}</h3>
+                                                        <span className={`inline-block px-2 py-0.5 text-[10px] font-bold rounded-full tracking-wider mt-1 ${task.status === 'delivered' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+                                                            }`}>
+                                                            {task.status.toUpperCase()}
+                                                        </span>
+                                                    </div>
+                                                    {task.status === 'delivered' && (
+                                                        <div className="text-sm font-bold text-emerald-600 flex items-center justify-end gap-1">
+                                                            <Check className="w-3.5 h-3.5" /> +10
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="text-xs text-gray-500 space-y-1">
+                                                    <p>From: {donation?.location?.address || 'Unknown'}</p>
+                                                    <p>To: {ngo?.name || 'Unknown'}</p>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    );
+                                })
+                            )}
+                        </TabsContent>
+                    </Tabs>
                 )}
 
                 {/* Delivery Confirmation Dialog */}
