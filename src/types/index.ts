@@ -8,6 +8,7 @@ export interface User {
     verified: boolean;
     sustainabilityCredits: number;
     languagePref: string;
+    isAvailable?: boolean;
     createdAt: string;
     verificationDocument?: string;
     documentType?: string;

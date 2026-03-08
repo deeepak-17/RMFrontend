@@ -50,11 +50,20 @@ function LandingPage() {
     );
 }
 
+
+import { PageTransition } from "@/components/animations/PageTransition";
+import { DynamicBackground } from "@/components/animations/DynamicBackground";
+
 function AppLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="antialiased min-h-screen pb-20 md:pb-0 bg-background text-foreground">
+        <div className="antialiased min-h-screen pb-20 md:pb-0 bg-transparent text-foreground relative">
+            <DynamicBackground />
             <Navbar />
-            <main className="flex-1">{children}</main>
+            <main className="flex-1">
+                <PageTransition>
+                    {children}
+                </PageTransition>
+            </main>
             <BottomNav />
         </div>
     );

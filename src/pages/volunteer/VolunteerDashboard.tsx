@@ -1,91 +1,165 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Truck, CheckCircle2, Map, Loader2, ArrowRight, Package } from 'lucide-react';
+import { Truck, CheckCircle2, Map, Loader2, Sparkles, Power } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { tasksApi } from '@/lib/api';
+import { tasksApi, volunteerApi } from '@/lib/api';
 import type { PickupTask } from '@/types';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 
 export default function VolunteerDashboard() {
-    const { user } = useAuth();
-    const [stats, setStats] = useState({ active: 0, completed: 0, distance: 0 });
+    const { user, refreshUser } = useAuth();
+    const [stats, setStats] = useState({
+        active: 0,
+        completed: 0,
+        distance: 0
+    });
     const [isLoading, setIsLoading] = useState(true);
+    const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
     useEffect(() => {
         const fetchStats = async () => {
             try {
                 const response = await tasksApi.getMyTasks();
                 const tasks: PickupTask[] = Array.isArray(response.data) ? response.data : (response.data.data || []);
+
                 const active = tasks.filter(t => ['assigned', 'accepted', 'picked'].includes(t.status)).length;
                 const completed = tasks.filter(t => t.status === 'delivered').length;
-                setStats({ active, completed, distance: completed * 5 + active * 2 });
+
+                setStats({
+                    active,
+                    completed,
+                    distance: completed * 5 + active * 2 // Mock calculation
+                });
             } catch (error) {
                 console.error('Error fetching dashboard stats:', error);
             } finally {
                 setIsLoading(false);
             }
         };
+
         fetchStats();
     }, []);
 
-    const statCards = [
-        { label: "Active Tasks", value: stats.active, icon: Truck, boxClass: "icon-box-orange" },
-        { label: "Completed", value: stats.completed, icon: CheckCircle2, boxClass: "icon-box-emerald" },
-        { label: "Est. Distance", value: `${stats.distance} km`, icon: Map, boxClass: "icon-box-blue" },
-    ];
+    const handleToggleAvailability = async (checked: boolean) => {
+        try {
+            setIsUpdatingStatus(true);
+            await volunteerApi.toggleAvailability(checked);
+            await refreshUser?.();
+            toast.success(`You are now ${checked ? 'Available' : 'Unavailable'} for pickups`);
+        } catch (error) {
+            console.error('Error updating availability:', error);
+            toast.error("Failed to update status");
+        } finally {
+            setIsUpdatingStatus(false);
+        }
+    };
 
     return (
-        <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+        <div className="min-h-screen bg-neutral-50 p-4">
             <div className="max-w-4xl mx-auto space-y-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                            Welcome, {user?.name || 'Volunteer'}!
+                            {user?.verified && <Sparkles className="w-5 h-5 text-emerald-500" />}
+                        </h1>
+                        <p className="text-gray-600">Your delivery performance and tasks</p>
+                    </div>
 
-                {/* Header */}
-                <div>
-                    <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">
-                        Welcome, {user?.name?.split(' ')[0] || 'Volunteer'}! 🚚
-                    </h1>
-                    <p className="text-gray-400 text-sm mt-0.5">Your delivery tasks and impact</p>
+                    <Card className="bg-white border-emerald-100 min-w-[200px]">
+                        <CardContent className="py-3 px-4 flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-2">
+                                <Power className={`w-4 h-4 ${user?.isAvailable ? 'text-emerald-500' : 'text-gray-400'}`} />
+                                <Label htmlFor="availability" className="text-sm font-medium cursor-pointer">
+                                    {user?.isAvailable ? 'Online' : 'Offline'}
+                                </Label>
+                            </div>
+                            <Switch
+                                id="availability"
+                                checked={user?.isAvailable || false}
+                                onCheckedChange={handleToggleAvailability}
+                                disabled={isUpdatingStatus}
+                            />
+                        </CardContent>
+                    </Card>
                 </div>
 
-                {/* Stats */}
                 {isLoading ? (
-                    <div className="flex justify-center p-10">
-                        <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
+                    <div className="flex justify-center p-12">
+                        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        {statCards.map((s) => {
-                            const Icon = s.icon;
-                            return (
-                                <div key={s.label} className="stat-card flex items-center gap-4">
-                                    <div className={`${s.boxClass} w-12 h-12 flex-shrink-0`}>
-                                        <Icon className="w-5 h-5 text-white" strokeWidth={1.5} />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">{s.label}</p>
-                                        <p className="text-2xl font-extrabold text-gray-900 tracking-tight mt-0.5">{s.value}</p>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                    /* Stats Cards */
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <Card className="bg-orange-50/50 border-orange-100">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-xs font-semibold text-orange-700 uppercase tracking-wider flex items-center gap-2">
+                                    <Truck className="w-3.5 h-3.5" />
+                                    Active Tasks
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-3xl font-bold text-gray-900">{stats.active}</p>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-emerald-50/50 border-emerald-100">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-xs font-semibold text-emerald-700 uppercase tracking-wider flex items-center gap-2">
+                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                    Completed
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-3xl font-bold text-gray-900">{stats.completed}</p>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-blue-50/50 border-blue-100">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-xs font-semibold text-blue-700 uppercase tracking-wider flex items-center gap-2">
+                                    <Map className="w-3.5 h-3.5" />
+                                    Distance
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-3xl font-bold text-gray-900">{stats.distance} km</p>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-purple-50/50 border-purple-100">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-xs font-semibold text-purple-700 uppercase tracking-wider flex items-center gap-2">
+                                    <Sparkles className="w-3.5 h-3.5" />
+                                    Impact Credits
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-3xl font-bold text-gray-900">{user?.sustainabilityCredits || 0}</p>
+                            </CardContent>
+                        </Card>
                     </div>
                 )}
 
-                {/* Task CTA card */}
                 <Link to="/volunteer/tasks">
-                    <div className="group bg-white rounded-2xl border-2 border-dashed border-emerald-200 hover:border-emerald-400 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 cursor-pointer p-6 flex items-center gap-5">
-                        <div className="icon-box-emerald w-14 h-14 flex-shrink-0">
-                            <Package className="w-7 h-7 text-white" strokeWidth={1.5} />
-                        </div>
-                        <div className="flex-1">
-                            <h3 className="font-bold text-gray-900 text-lg">Manage Tasks</h3>
-                            <p className="text-gray-400 text-sm mt-0.5">View assigned pickups, update status, and track deliveries</p>
-                        </div>
-                        <Button variant="outline" className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 rounded-xl font-bold group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 transition-all">
-                            View All <ArrowRight className="w-4 h-4 ml-1.5" />
-                        </Button>
-                    </div>
+                    <Card className="cursor-pointer hover:shadow-md transition-shadow border-emerald-100 bg-white">
+                        <CardContent className="flex items-center gap-4 p-6">
+                            <div className="p-3 bg-emerald-100 rounded-lg">
+                                <Truck className="w-6 h-6 text-emerald-600" />
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-lg text-gray-900">Manage Tasks</h3>
+                                <p className="text-sm text-gray-600">View assigned pickups, update status, and track deliveries</p>
+                            </div>
+                            <div className="ml-auto">
+                                <Button variant="outline" className="border-emerald-200 text-emerald-700 hover:bg-emerald-50">
+                                    View All
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </Link>
-
             </div>
         </div>
     );

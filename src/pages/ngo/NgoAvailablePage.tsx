@@ -99,69 +99,7 @@ const getStreetViewUrl = (lat: number, lng: number) =>
 const getDirectionsUrl = (lat: number, lng: number) =>
     `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
 
-// Mock data - will be replaced with API calls
-const mockDonations = [
-    {
-        _id: '1',
-        title: 'Mixed Lunch Plates',
-        description: 'Variety of rice, curry, vegetables, and desserts from corporate event',
-        quantity: 50,
-        unit: 'servings',
-        foodType: 'prepared',
-        donor: { name: 'Tech Park Canteen', phone: '+91 9876543210' },
-        location: { address: '123 Tech Park, Sector 5', distance: 1.2, coordinates: [13.0827, 80.2707] },
-        expiryTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
-        pickupWindow: { start: new Date().toISOString(), end: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString() },
-        status: 'available',
-        servingsCount: 50,
-        imageUrl: 'https://placehold.co/600x400/orange/white?text=Mixed+Lunch',
-    },
-    {
-        _id: '2',
-        title: 'Fresh Sandwiches & Pastries',
-        description: 'Assorted sandwiches and bakery items, all freshly made today',
-        quantity: 40,
-        unit: 'pieces',
-        foodType: 'bakery',
-        donor: { name: 'Cafe Express', phone: '+91 9876543211' },
-        location: { address: '45 Main Street, City Center', distance: 2.5, coordinates: [13.0850, 80.2750] },
-        expiryTime: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(),
-        pickupWindow: { start: new Date().toISOString(), end: new Date(Date.now() + 5 * 60 * 60 * 1000).toISOString() },
-        status: 'available',
-        servingsCount: 40,
-        imageUrl: 'https://placehold.co/600x400/green/white?text=Sandwiches',
-    },
-    {
-        _id: '3',
-        title: 'Vegetable Biryani',
-        description: 'Leftover from wedding catering, properly stored and fresh',
-        quantity: 100,
-        unit: 'plates',
-        foodType: 'prepared',
-        donor: { name: 'Grand Caterers', phone: '+91 9876543212' },
-        location: { address: '78 Wedding Hall Road', distance: 3.8, coordinates: [13.0800, 80.2650] },
-        expiryTime: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
-        pickupWindow: { start: new Date().toISOString(), end: new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString() },
-        status: 'available',
-        servingsCount: 100,
-        imageUrl: 'https://placehold.co/600x400/red/white?text=Biryani',
-    },
-    {
-        _id: '4',
-        title: 'Rice and Lentils',
-        description: 'Simple home-style meal from temple kitchen prasadam',
-        quantity: 30,
-        unit: 'servings',
-        foodType: 'prepared',
-        donor: { name: 'Sri Temple Kitchen', phone: '+91 9876543213' },
-        location: { address: '12 Temple Street', distance: 0.8, coordinates: [13.0835, 80.2720] },
-        expiryTime: new Date(Date.now() + 1 * 60 * 60 * 1000).toISOString(),
-        pickupWindow: { start: new Date().toISOString(), end: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString() },
-        status: 'available',
-        servingsCount: 30,
-        imageUrl: 'https://placehold.co/600x400/blue/white?text=Rice+Meal',
-    },
-];
+
 
 interface Donation {
     _id: string;
@@ -225,11 +163,10 @@ export default function NgoAvailablePage() {
                     location: d.location || { address: 'Unknown', distance: 0, coordinates: [0, 0] }
                 }));
 
-                setDonations(mappedDonations.length > 0 ? mappedDonations : mockDonations);
+                setDonations(mappedDonations);
             } catch (error) {
                 console.error('Error fetching donations:', error);
-                // Fallback to mock data if API fails
-                setDonations(mockDonations);
+                setDonations([]);
             } finally {
                 setIsLoading(false);
             }

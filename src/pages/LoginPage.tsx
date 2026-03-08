@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,9 +14,14 @@ const brandHighlights = [
 
 export default function LoginPage() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { login } = useAuth();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+
+    // Check if we came from a redirect asking for admin
+    const state = location.state as { prefillAdmin?: boolean } | null;
+
+    const [email, setEmail] = useState(state?.prefillAdmin ? "admin@resqmeals.com" : "");
+    const [password, setPassword] = useState(state?.prefillAdmin ? "AdminPassword123!" : "");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -150,12 +155,14 @@ export default function LoginPage() {
                         </Button>
                     </form>
 
-                    <p className="mt-6 text-center text-sm text-gray-400">
-                        Don't have an account?{" "}
-                        <Link to="/register" className="text-emerald-600 font-semibold hover:text-emerald-700 transition-colors">
-                            Register
-                        </Link>
-                    </p>
+                    <div className="mt-6 pt-6 border-t border-gray-100 flex flex-col gap-3">
+                        <p className="text-center text-sm text-gray-400">
+                            Don't have an account?{" "}
+                            <Link to="/register" className="text-emerald-600 font-semibold hover:text-emerald-700 transition-colors">
+                                Register
+                            </Link>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
