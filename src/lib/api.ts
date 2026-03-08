@@ -58,6 +58,7 @@ export const donationsApi = {
 export const tasksApi = {
     getMyTasks: () => api.get('/tasks/my'),
     accept: (id: string) => api.put(`/tasks/${id}/accept`),
+    decline: (id: string) => api.put(`/tasks/${id}/decline`),
     updateStatus: (id: string, status: 'picked' | 'delivered') =>
         api.put(`/tasks/${id}/status`, { status }),
 };
