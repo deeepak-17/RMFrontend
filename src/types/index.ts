@@ -9,9 +9,16 @@ export interface User {
     sustainabilityCredits: number;
     languagePref: string;
     isAvailable?: boolean;
+    totalDeliveries?: number;
+    totalDistance?: number;
     createdAt: string;
     verificationDocument?: string;
     documentType?: string;
+    location?: {
+        type: 'Point';
+        coordinates: [number, number]; // [lng, lat]
+        address?: string;
+    };
 }
 
 export interface AuthResponse {

@@ -8,12 +8,12 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, MapPin, Package, Check, Loader2, Map as MapIcon, X } from 'lucide-react';
+import { ArrowLeft, MapPin, Package, Check, Loader2, Map as MapIcon, X, Navigation, Sparkles, Star, Info, Clock } from 'lucide-react';
 import type { PickupTask } from '@/types';
 import { tasksApi } from '@/lib/api';
 import { VolunteerMapView } from '@/components/volunteer/VolunteerMapView';
 import { toast } from 'sonner';
-import { History } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 import {
     Dialog,
     DialogContent,
@@ -23,14 +23,30 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { History, Bell } from 'lucide-react';
+import { socketService } from '@/lib/socket';
+
+function getDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+    const R = 6371; // km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
 
 export default function VolunteerTasksPage() {
+    const { user } = useAuth();
     const [tasks, setTasks] = useState<PickupTask[]>([]);
+
     const [isLoading, setIsLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [showMapForTask, setShowMapForTask] = useState<string | null>(null);
     const [confirmDeliveryId, setConfirmDeliveryId] = useState<string | null>(null);
     const [deliveryFeedback, setDeliveryFeedback] = useState("");
+    const [deliveryRating, setDeliveryRating] = useState(5);
 
     const fetchTasks = async () => {
         try {
@@ -48,6 +64,26 @@ export default function VolunteerTasksPage() {
 
     useEffect(() => {
         fetchTasks();
+
+        // Socket listener for new assignments
+        const onTaskAssigned = (data: any) => {
+            console.log("Tasks Page: New task assigned", data);
+            toast.info("🛎️ You've been assigned a new task!", {
+                icon: <Bell className="w-4 h-4 text-emerald-600" />,
+                duration: 5000
+            });
+            fetchTasks();
+        };
+
+        const onReassignmentNeeded = () => fetchTasks();
+
+        socketService.on('task:assigned', onTaskAssigned);
+        socketService.on('task:reassignment_needed', onReassignmentNeeded);
+
+        return () => {
+            socketService.off('task:assigned', onTaskAssigned);
+            socketService.off('task:reassignment_needed', onReassignmentNeeded);
+        };
     }, []);
 
     const handleAccept = async (taskId: string) => {
@@ -64,15 +100,16 @@ export default function VolunteerTasksPage() {
         }
     };
 
-    const handleUpdateStatus = async (taskId: string, status: 'picked' | 'delivered', feedback?: string) => {
+    const handleUpdateStatus = async (taskId: string, status: 'picked' | 'delivered', feedback?: string, rating?: number) => {
         try {
             setActionLoading(taskId);
-            await tasksApi.updateStatus(taskId, status, feedback);
+            await tasksApi.updateStatus(taskId, status, feedback, rating);
 
             if (status === 'delivered') {
                 toast.success("Great job! Delivery confirmed and credits earned.");
                 setConfirmDeliveryId(null);
                 setDeliveryFeedback("");
+                setDeliveryRating(5);
             } else {
                 toast.success("Marked as picked. Proceed to delivery.");
             }
@@ -161,6 +198,12 @@ export default function VolunteerTasksPage() {
                                         ? [ngo.location.coordinates[1], ngo.location.coordinates[0]]
                                         : [pickupCoords[0] + 0.01, pickupCoords[1] + 0.01];
 
+                                    // Calculate distance from volunteer
+                                    const volCoords = user?.location?.coordinates || [0, 0];
+                                    const distance = user?.location?.coordinates
+                                        ? getDistance(volCoords[1], volCoords[0], pickupCoords[0], pickupCoords[1])
+                                        : null;
+
                                     return (
                                         <Card key={task._id} className={`overflow-hidden transition-all ${isActive ? 'ring-1 ring-emerald-500 shadow-md' : ''}`}>
                                             <CardContent className="p-0">
@@ -169,13 +212,34 @@ export default function VolunteerTasksPage() {
                                                         <div>
                                                             <div className="flex items-center gap-2 mb-1">
                                                                 <h3 className="font-semibold text-lg">{donation?.title || 'Pickup Task'}</h3>
-                                                                {new Date(donation?.expiryTime).getTime() < Date.now() ? (
-                                                                    <span className="px-2 py-0.5 text-[10px] font-bold bg-red-100 text-red-700 rounded-full">
-                                                                        EXPIRED
+                                                                {distance !== null && (
+                                                                    <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold bg-blue-50 text-blue-600 rounded-full">
+                                                                        <Navigation className="w-2.5 h-2.5" />
+                                                                        {distance < 1 ? `${(distance * 1000).toFixed(0)}m` : `${distance.toFixed(1)}km`} away
                                                                     </span>
-                                                                ) : new Date(donation?.expiryTime).getTime() - Date.now() < 4 * 60 * 60 * 1000 && (
-                                                                    <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-700 rounded-full">
-                                                                        EXPIRING SOON
+                                                                )}
+                                                                {(() => {
+                                                                    const expiry = new Date(donation?.expiryTime).getTime();
+                                                                    const now = Date.now();
+                                                                    const diff = expiry - now;
+                                                                    if (diff < 0) return (
+                                                                        <span className="px-2 py-0.5 text-[10px] font-bold bg-red-100 text-red-700 rounded-full">EXPIRED</span>
+                                                                    );
+
+                                                                    const hours = Math.floor(diff / (1000 * 60 * 60));
+                                                                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                                                                    const isUrgent = diff < 60 * 60 * 1000; // < 1 hour
+
+                                                                    return (
+                                                                        <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full flex items-center gap-1 ${isUrgent ? 'bg-orange-100 text-orange-700 animate-pulse' : 'bg-emerald-50 text-emerald-700'}`}>
+                                                                            <Clock className="w-2.5 h-2.5" />
+                                                                            {hours}h {minutes}m left
+                                                                        </span>
+                                                                    );
+                                                                })()}
+                                                                {task.priority === 'High' && (
+                                                                    <span className="px-2 py-0.5 text-[10px] font-bold bg-red-600 text-white rounded-full">
+                                                                        HIGH PRIORITY
                                                                     </span>
                                                                 )}
                                                             </div>
@@ -230,6 +294,7 @@ export default function VolunteerTasksPage() {
                                                             <VolunteerMapView
                                                                 pickup={pickupCoords}
                                                                 delivery={deliveryCoords}
+                                                                volunteer={user?.location?.coordinates ? [volCoords[1], volCoords[0]] : undefined}
                                                                 pickupAddress={donation?.location?.address}
                                                                 deliveryAddress={ngo?.address}
                                                                 taskStatus={task.status}
@@ -335,9 +400,27 @@ export default function VolunteerTasksPage() {
                                                         </div>
                                                     )}
                                                 </div>
-                                                <div className="text-xs text-gray-500 space-y-1">
-                                                    <p>From: {donation?.location?.address || 'Unknown'}</p>
-                                                    <p>To: {ngo?.name || 'Unknown'}</p>
+                                                <div className="text-xs text-gray-500 space-y-2">
+                                                    <p className="flex items-center gap-1.5"><MapPin className="w-3 h-3 text-gray-400" /> From: {donation?.location?.address || 'Unknown'}</p>
+                                                    <p className="flex items-center gap-1.5"><Package className="w-3 h-3 text-gray-400" /> To: {ngo?.name || 'Unknown'}</p>
+
+                                                    {(task.rating || task.feedback) && (
+                                                        <div className="mt-3 p-2 bg-gray-50 rounded-lg border border-gray-100">
+                                                            {task.rating && (
+                                                                <div className="flex items-center gap-1 mb-1">
+                                                                    {[1, 2, 3, 4, 5].map((s) => (
+                                                                        <Star key={s} className={`w-3 h-3 ${s <= task.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-200'}`} />
+                                                                    ))}
+                                                                </div>
+                                                            )}
+                                                            {task.feedback && (
+                                                                <p className="text-[11px] italic text-gray-600 flex items-start gap-1">
+                                                                    <Info className="w-3 h-3 mt-0.5 text-gray-400 flex-shrink-0" />
+                                                                    "{task.feedback}"
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </CardContent>
                                         </Card>
@@ -361,14 +444,31 @@ export default function VolunteerTasksPage() {
                             <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center">
                                 <Check className="w-8 h-8 text-emerald-600" />
                             </div>
-                            <div className="w-full space-y-2">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Optional Delivery Feedback</label>
-                                <textarea
-                                    className="w-full min-h-[80px] p-3 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
-                                    placeholder="Any notes about the delivery or location? (e.g., Left at reception)"
-                                    value={deliveryFeedback}
-                                    onChange={(e) => setDeliveryFeedback(e.target.value)}
-                                />
+                            <div className="w-full space-y-4">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest text-center block">Rate your experience</label>
+                                    <div className="flex justify-center gap-2">
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <button
+                                                key={star}
+                                                type="button"
+                                                onClick={() => setDeliveryRating(star)}
+                                                className={`transition-all ${star <= deliveryRating ? 'text-amber-400 scale-110' : 'text-gray-300 hover:text-amber-200'}`}
+                                            >
+                                                <Sparkles className={`w-8 h-8 ${star <= deliveryRating ? 'fill-amber-400' : ''}`} />
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Optional Delivery Feedback</label>
+                                    <textarea
+                                        className="w-full min-h-[80px] p-3 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
+                                        placeholder="Any notes about the delivery or location? (e.g., Left at reception)"
+                                        value={deliveryFeedback}
+                                        onChange={(e) => setDeliveryFeedback(e.target.value)}
+                                    />
+                                </div>
                             </div>
                         </div>
                         <DialogFooter className="sm:justify-between sm:space-x-2">
@@ -377,13 +477,14 @@ export default function VolunteerTasksPage() {
                                 variant="secondary"
                                 onClick={() => setConfirmDeliveryId(null)}
                                 className="flex-1"
+                                disabled={actionLoading !== null}
                             >
                                 Not yet
                             </Button>
                             <Button
                                 type="button"
                                 className="bg-emerald-600 hover:bg-emerald-700 flex-1"
-                                onClick={() => confirmDeliveryId && handleUpdateStatus(confirmDeliveryId, 'delivered', deliveryFeedback)}
+                                onClick={() => confirmDeliveryId && handleUpdateStatus(confirmDeliveryId, 'delivered', deliveryFeedback, deliveryRating)}
                                 disabled={actionLoading !== null}
                             >
                                 {actionLoading !== null ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}

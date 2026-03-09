@@ -75,7 +75,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 response = await authApi.register(formData);
             } else {
                 // Otherwise use JSON
-                response = await authApi.register({ name, email, password, role, organizationType });
+                const payload: any = { name, email, password, role };
+                if (organizationType) payload.organizationType = organizationType;
+                if (documentType) payload.documentType = documentType;
+                response = await authApi.register(payload);
             }
 
             // NOTE: We don't auto-login here anymore based on RegisterPage logic
