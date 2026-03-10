@@ -39,7 +39,7 @@ const solutions = [
 
 export default function BusinessSolutions() {
   return (
-    <section className="relative py-28 bg-gray-50 overflow-hidden">
+    <section id="impact" className="relative py-28 bg-gray-50 overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
 
       <div className="container mx-auto px-6 max-w-[1280px]">
