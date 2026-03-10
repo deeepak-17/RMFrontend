@@ -6,6 +6,7 @@ import {
     AlertCircle, ArrowRight
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import VoiceAssistant from '@/components/VoiceAssistant';
 
 const mockStats = { mealsCollected: 245, peopleFed: 612, activeClaims: 3, co2Saved: 122 };
 
@@ -47,6 +48,7 @@ export default function NgoDashboard() {
     ];
 
     return (
+        <>
         <div className="min-h-screen bg-gray-50 p-4 md:p-8">
             <div className="max-w-6xl mx-auto space-y-6">
 
@@ -180,5 +182,7 @@ export default function NgoDashboard() {
 
             </div>
         </div>
+        <VoiceAssistant />
+        </>
     );
 }

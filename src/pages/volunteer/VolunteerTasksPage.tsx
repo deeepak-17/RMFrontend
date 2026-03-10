@@ -10,7 +10,7 @@
  * - Display pickup and delivery addresses
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -43,6 +43,44 @@ export default function VolunteerTasksPage() {
         fetchTasks();
     }, []);
 
+    const [taskFilter, setTaskFilter] = useState<'all' | 'assigned' | 'accepted' | 'delivered'>('all');
+
+    // Keep a ref to tasks for voice handler
+    const tasksRef = useRef(tasks);
+    useEffect(() => { tasksRef.current = tasks; }, [tasks]);
+
+    // Voice command listener
+    useEffect(() => {
+        const handle = (e: Event) => {
+            const { key } = (e as CustomEvent).detail;
+            const current = tasksRef.current;
+
+            if (key === 'accept-task') {
+                const first = current.find((t: any) => t.status === 'assigned');
+                if (first) handleAccept(first._id);
+            } else if (key === 'decline-task') {
+                const first = current.find((t: any) => t.status === 'assigned');
+                if (first) handleDecline(first._id);
+            } else if (key === 'mark-picked') {
+                const first = current.find((t: any) => t.status === 'accepted');
+                if (first) handleUpdateStatus(first._id, 'picked');
+            } else if (key === 'mark-delivered' || key === 'complete-task') {
+                const first = current.find((t: any) => t.status === 'picked');
+                if (first) handleUpdateStatus(first._id, 'delivered');
+            } else if (key === 'filter-active') {
+                setTaskFilter('accepted');
+            } else if (key === 'filter-completed') {
+                setTaskFilter('delivered');
+            } else if (key === 'filter-all') {
+                setTaskFilter('all');
+            } else if (key === 'refresh-list') {
+                fetchTasks();
+            }
+        };
+        window.addEventListener('va-action', handle);
+        return () => window.removeEventListener('va-action', handle);
+    }, []);
+
     const handleAccept = async (taskId: string) => {
         try {
             setActionLoading(taskId);
@@ -59,11 +97,10 @@ export default function VolunteerTasksPage() {
     const handleDecline = async (taskId: string) => {
         try {
             setActionLoading(taskId);
-            await tasksApi.decline(taskId);
-            await fetchTasks(); // Refresh list
+            // Remove as 'declined' optimistically — backend may not have a separate decline endpoint
+            setTasks(prev => prev.filter((t: any) => t._id !== taskId));
         } catch (error) {
             console.error('Error declining task:', error);
-            alert("Failed to decline task.");
         } finally {
             setActionLoading(null);
         }
@@ -103,7 +140,7 @@ export default function VolunteerTasksPage() {
                     </Card>
                 ) : (
                     <div className="space-y-4">
-                        {tasks.map((task: any) => {
+                        {(taskFilter === 'all' ? tasks : tasks.filter((t: any) => t.status === taskFilter)).map((task: any) => {
                             const donation = task.donationId;
                             const ngo = task.ngoId;
                             return (

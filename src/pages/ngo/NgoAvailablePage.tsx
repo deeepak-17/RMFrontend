@@ -12,7 +12,7 @@
  * - Claim donations
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -267,6 +267,44 @@ export default function NgoAvailablePage() {
         }
         return () => { document.body.style.overflow = ''; };
     }, [isExpanded]);
+
+    // ── Voice command listener ──────────────────────────────────
+    const donationsRef = useRef(donations);
+    useEffect(() => { donationsRef.current = donations; }, [donations]);
+
+    useEffect(() => {
+        const handle = (e: Event) => {
+            const { key, itemName } = (e as CustomEvent).detail;
+            const current = donationsRef.current;
+
+            if (key === 'show-map') {
+                setViewMode('map');
+            } else if (key === 'show-list') {
+                setViewMode('list');
+            } else if (key === 'impact-report') {
+                document.querySelector('[data-va="impact"]')?.scrollIntoView({ behavior: 'smooth' });
+            } else if (key === 'claim-first') {
+                const first = current.find((d) => d.status === 'available');
+                if (first) handleClaim(first._id);
+            } else if (key === 'track-latest') {
+                // Match by item name if provided, otherwise click first track button
+                let btn: HTMLButtonElement | null = null;
+                if (itemName) {
+                    const cards = document.querySelectorAll<HTMLElement>('[data-donation-title]');
+                    for (const card of Array.from(cards)) {
+                        const title = card.dataset.donationTitle?.toLowerCase() ?? '';
+                        if (title.includes(itemName)) {
+                            btn = card.querySelector('[data-va="track"]');
+                            break;
+                        }
+                    }
+                }
+                (btn ?? document.querySelector<HTMLButtonElement>('[data-va="track"]'))?.click();
+            }
+        };
+        window.addEventListener('va-action', handle);
+        return () => window.removeEventListener('va-action', handle);
+    }, []);
 
     const handleClaim = async (donationId: string) => {
         setClaimingId(donationId);

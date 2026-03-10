@@ -50,12 +50,15 @@ function LandingPage() {
     );
 }
 
+import VoiceAssistant from '@/components/VoiceAssistant';
+
 function AppLayout({ children }: { children: React.ReactNode }) {
     return (
         <div className="antialiased min-h-screen pb-20 md:pb-0 bg-background text-foreground">
             <Navbar />
             <main className="flex-1">{children}</main>
             <BottomNav />
+            <VoiceAssistant />
         </div>
     );
 }

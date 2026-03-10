@@ -9,7 +9,7 @@
  * - Show impact summary
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,6 +40,51 @@ export default function NgoHistoryPage() {
 
     useEffect(() => {
         fetchHistory();
+    }, []);
+
+    // Keep a ref to collections for the voice handler
+    const collectionsRef = useRef(collections);
+    useEffect(() => { collectionsRef.current = collections; }, [collections]);
+
+    // Voice command listener
+    useEffect(() => {
+        const handle = (e: Event) => {
+            const { key, itemName } = (e as CustomEvent).detail;
+            const cur = collectionsRef.current;
+
+            if (key === 'ngo-filter-all') {
+                setFilter('all');
+            } else if (key === 'ngo-filter-collected') {
+                setFilter('collected');
+            } else if (key === 'ngo-filter-reserved') {
+                setFilter('reserved');
+            } else if (key === 'refresh-list') {
+                fetchHistory();
+            } else if (key === 'ngo-total') {
+                const count = cur.filter(c => c.status === 'collected').length;
+                window.dispatchEvent(new CustomEvent('va-speak', { detail: { text: `Total collections: ${count}` } }));
+            } else if (key === 'ngo-people-fed') {
+                const count = cur.filter(c => c.status === 'collected').length * 4;
+                window.dispatchEvent(new CustomEvent('va-speak', { detail: { text: `People fed: approximately ${count}` } }));
+            } else if (key === 'ngo-pending') {
+                const count = cur.filter(c => c.status === 'reserved').length;
+                window.dispatchEvent(new CustomEvent('va-speak', { detail: { text: `Pending pickups: ${count}` } }));
+            } else if (key === 'track-latest') {
+                let btn: HTMLButtonElement | null = null;
+                if (itemName) {
+                    const rows = document.querySelectorAll<HTMLElement>('[data-donation-title]');
+                    for (const row of Array.from(rows)) {
+                        if ((row.dataset.donationTitle ?? '').toLowerCase().includes(itemName)) {
+                            btn = row.querySelector('[data-va="track"]');
+                            break;
+                        }
+                    }
+                }
+                (btn ?? document.querySelector<HTMLButtonElement>('[data-va="track"]'))?.click();
+            }
+        };
+        window.addEventListener('va-action', handle);
+        return () => window.removeEventListener('va-action', handle);
     }, []);
 
     const filteredCollections = filter === 'all'
@@ -220,6 +265,7 @@ export default function NgoHistoryPage() {
                                 {filteredCollections.map((collection) => (
                                     <div
                                         key={collection._id}
+                                        data-donation-title={collection.title}
                                         className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                                     >
                                         <div className="flex items-start gap-4">
@@ -246,7 +292,7 @@ export default function NgoHistoryPage() {
 
                                                 <Dialog>
                                                     <DialogTrigger asChild>
-                                                        <Button variant="outline" size="sm" className="h-7 text-xs gap-1">
+                                                        <Button data-va="track" variant="outline" size="sm" className="h-7 text-xs gap-1">
                                                             <Clock className="w-3 h-3" /> Track
                                                         </Button>
                                                     </DialogTrigger>
