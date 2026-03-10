@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, MapPin, Package, Check, Loader2, Map as MapIcon, X, Navigation, Sparkles, Star, Info, Clock } from 'lucide-react';
+import { ArrowLeft, MapPin, Package, Check, Loader2, Map as MapIcon, X, Navigation, Sparkles, Star, Info, Clock, AlertTriangle } from 'lucide-react';
 import type { PickupTask } from '@/types';
 import { tasksApi } from '@/lib/api';
 import { VolunteerMapView } from '@/components/volunteer/VolunteerMapView';
@@ -220,7 +220,9 @@ export default function VolunteerTasksPage() {
                                                                     </span>
                                                                 )}
                                                                 {(() => {
-                                                                    const expiry = new Date(donation?.expiryTime).getTime();
+                                                                    const targetTime = task.pickupWindowEnd || donation?.expiryTime;
+                                                                    if (!targetTime) return null;
+                                                                    const expiry = new Date(targetTime).getTime();
                                                                     const now = Date.now();
                                                                     const diff = expiry - now;
                                                                     if (diff < 0) return (
@@ -238,9 +240,15 @@ export default function VolunteerTasksPage() {
                                                                         </span>
                                                                     );
                                                                 })()}
-                                                                {task.priority === 'High' && (
+                                                                {task.priority === 'High' && !task.isEmergency && (
                                                                     <span className="px-2 py-0.5 text-[10px] font-bold bg-red-600 text-white rounded-full">
                                                                         HIGH PRIORITY
+                                                                    </span>
+                                                                )}
+                                                                {task.isEmergency && (
+                                                                    <span className="px-2 py-0.5 text-[10px] font-bold bg-red-600 text-white rounded-full flex items-center gap-1 animate-pulse">
+                                                                        <AlertTriangle className="w-2.5 h-2.5" />
+                                                                        EMERGENCY
                                                                     </span>
                                                                 )}
                                                             </div>

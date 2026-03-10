@@ -31,6 +31,9 @@ import {
     NgoHistoryPage,
     VolunteerDashboard,
     VolunteerTasksPage,
+    VolunteerMapPage,
+    VolunteerPerformancePage,
+    VolunteerLiveTrackingPage
 } from "@/pages";
 
 function LandingPage() {
@@ -236,6 +239,21 @@ function App() {
                     <Route path="/volunteer/tasks" element={
                         <ProtectedRoute allowedRoles={['volunteer']}>
                             <AppLayout><VolunteerTasksPage /></AppLayout>
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/volunteer/map" element={
+                        <ProtectedRoute allowedRoles={['volunteer']}>
+                            <AppLayout><VolunteerMapPage /></AppLayout>
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/volunteer/performance" element={
+                        <ProtectedRoute allowedRoles={['volunteer']}>
+                            <AppLayout><VolunteerPerformancePage /></AppLayout>
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/volunteer/tracking" element={
+                        <ProtectedRoute allowedRoles={['volunteer']}>
+                            <AppLayout><VolunteerLiveTrackingPage /></AppLayout>
                         </ProtectedRoute>
                     } />
                 </Routes>

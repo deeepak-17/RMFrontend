@@ -26,3 +26,8 @@ export { default as NgoHistoryPage } from './ngo/NgoHistoryPage';
 // Volunteer Pages
 export { default as VolunteerDashboard } from './volunteer/VolunteerDashboard';
 export { default as VolunteerTasksPage } from './volunteer/VolunteerTasksPage';
+export { default as VolunteerMapPage } from './volunteer/VolunteerMapPage';
+export { default as VolunteerPerformancePage } from './volunteer/VolunteerPerformancePage';
+export { default as VolunteerLiveTrackingPage } from './volunteer/VolunteerLiveTrackingPage';
+
+

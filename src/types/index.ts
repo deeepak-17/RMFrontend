@@ -14,6 +14,10 @@ export interface User {
     reliabilityScore?: number;
     completedTasks?: number;
     totalAssignedTasks?: number;
+    // Volunteer Epic
+    onTimePickups?: number;
+    latePickups?: number;
+    averageDeliveryTimeMin?: number;
     createdAt: string;
     verificationDocument?: string;
     documentType?: string;
@@ -85,6 +89,16 @@ export interface PickupTask {
     pickedAt?: string;
     deliveredAt?: string;
     priority?: 'Normal' | 'High';
+    // Volunteer Epic
+    pickupWindowStart?: string;
+    pickupWindowEnd?: string;
+    liveLocation?: {
+        coordinates: [number, number];
+        updatedAt: string;
+    };
+    isEmergency?: boolean;
+    emergencyAt?: string;
+    missedPickup?: boolean;
     // User Story 5.3: Chain-of-Custody Tracking
     history?: Array<{
         status: string;
@@ -107,6 +121,19 @@ export interface ImpactStats {
     carbonSaved: number; // kg CO2
     mealsRecovered: number;
     creditsEarned: number;
+}
+
+// Performance Stats
+export interface PerformanceStats {
+    reliabilityScore: number;
+    onTimeRate: number;
+    totalDeliveries: number;
+    totalDistance: number;
+    averageRating: number;
+    badge: string;
+    onTimePickups: number;
+    latePickups: number;
+    averageDeliveryTimeMin: number;
 }
 
 // API Response types

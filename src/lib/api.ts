@@ -59,10 +59,14 @@ export const donationsApi = {
 // Tasks API (Volunteer)
 export const tasksApi = {
     getMyTasks: () => api.get('/tasks/my'),
+    getAvailable: (lat: number, lng: number, radiusKm: number = 10) => api.get(`/tasks/available?lat=${lat}&lng=${lng}&radiusKm=${radiusKm}`),
+    getPerformanceStats: () => api.get('/tasks/performance'),
     accept: (id: string) => api.put(`/tasks/${id}/accept`),
     decline: (id: string) => api.put(`/tasks/${id}/decline`),
     updateStatus: (id: string, status: 'picked' | 'delivered', feedback?: string, rating?: number) =>
         api.put(`/tasks/${id}/status`, { status, feedback, rating }),
+    updateLiveLocation: (id: string, lat: number, lng: number) => api.put(`/tasks/${id}/live-location`, { lat, lng }),
+    triggerEmergencyReassign: (id: string) => api.post(`/tasks/${id}/emergency`),
 };
 
 // Volunteer Profile API

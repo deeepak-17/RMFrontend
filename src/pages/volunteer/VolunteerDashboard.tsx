@@ -10,7 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { socketService } from '@/lib/socket';
-import { TrendingUp, Clock } from 'lucide-react';
+import { TrendingUp, Clock, Navigation, Award } from 'lucide-react';
 
 export default function VolunteerDashboard() {
     const { user, refreshUser } = useAuth();
@@ -315,24 +315,63 @@ export default function VolunteerDashboard() {
                     </Card>
                 </div>
 
-                <Link to="/volunteer/tasks">
-                    <Card className="cursor-pointer hover:shadow-md transition-shadow border-emerald-100 bg-white">
-                        <CardContent className="flex items-center gap-4 p-6">
-                            <div className="p-3 bg-emerald-100 rounded-lg">
-                                <Truck className="w-6 h-6 text-emerald-600" />
-                            </div>
-                            <div>
-                                <h3 className="font-semibold text-lg text-gray-900">Manage Tasks</h3>
-                                <p className="text-sm text-gray-600">View assigned pickups, update status, and track deliveries</p>
-                            </div>
-                            <div className="ml-auto">
-                                <Button variant="outline" className="border-emerald-200 text-emerald-700 hover:bg-emerald-50">
-                                    View All
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </Link>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-8">
+                    <Link to="/volunteer/tasks">
+                        <Card className="cursor-pointer hover:shadow-md transition-shadow border-emerald-100 bg-white h-full flex flex-col justify-center">
+                            <CardContent className="flex items-center gap-4 p-4">
+                                <div className="p-3 bg-emerald-100 rounded-lg shrink-0">
+                                    <Truck className="w-5 h-5 text-emerald-600" />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-gray-900 leading-tight">My Tasks</h3>
+                                    <p className="text-xs text-gray-500 mt-1">View assigned pickups</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </Link>
+
+                    <Link to="/volunteer/map">
+                        <Card className="cursor-pointer hover:shadow-md transition-shadow border-emerald-100 bg-white h-full flex flex-col justify-center">
+                            <CardContent className="flex items-center gap-4 p-4">
+                                <div className="p-3 bg-blue-100 rounded-lg shrink-0">
+                                    <Map className="w-5 h-5 text-blue-600" />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-gray-900 leading-tight">Pickup Map</h3>
+                                    <p className="text-xs text-gray-500 mt-1">Find nearby available tasks</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </Link>
+
+                    <Link to="/volunteer/tracking">
+                        <Card className="cursor-pointer hover:shadow-md transition-shadow border-emerald-100 bg-white h-full flex flex-col justify-center">
+                            <CardContent className="flex items-center gap-4 p-4">
+                                <div className="p-3 bg-orange-100 rounded-lg shrink-0">
+                                    <Navigation className="w-5 h-5 text-orange-600" />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-gray-900 leading-tight">Live Tracking</h3>
+                                    <p className="text-xs text-gray-500 mt-1">Navigate & share location</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </Link>
+
+                    <Link to="/volunteer/performance">
+                        <Card className="cursor-pointer hover:shadow-md transition-shadow border-emerald-100 bg-white h-full flex flex-col justify-center">
+                            <CardContent className="flex items-center gap-4 p-4">
+                                <div className="p-3 bg-purple-100 rounded-lg shrink-0">
+                                    <Award className="w-5 h-5 text-purple-600" />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-gray-900 leading-tight">Performance</h3>
+                                    <p className="text-xs text-gray-500 mt-1">View badges & stats</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </Link>
+                </div>
             </div>
         </div>
     );
