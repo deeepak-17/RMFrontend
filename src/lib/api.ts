@@ -51,6 +51,9 @@ export const donationsApi = {
     accept: (id: string) => api.post(`/ngo/accept/${id}`),
     confirmPickup: (id: string) => api.post(`/ngo/confirm/${id}`),
     getNgoHistory: () => api.get('/ngo/history'),
+    getNgoTasks: () => api.get('/ngo/tasks'),
+    submitTaskFeedback: (taskId: string, rating: number, feedback: string) =>
+        api.post(`/ngo/tasks/${taskId}/feedback`, { rating, feedback }),
 };
 
 // Tasks API (Volunteer)

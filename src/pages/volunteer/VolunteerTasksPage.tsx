@@ -44,6 +44,7 @@ export default function VolunteerTasksPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [showMapForTask, setShowMapForTask] = useState<string | null>(null);
+    const [showHistoryForTask, setShowHistoryForTask] = useState<string | null>(null);
     const [confirmDeliveryId, setConfirmDeliveryId] = useState<string | null>(null);
     const [deliveryFeedback, setDeliveryFeedback] = useState("");
     const [deliveryRating, setDeliveryRating] = useState(5);
@@ -302,6 +303,28 @@ export default function VolunteerTasksPage() {
                                                         </div>
                                                     )}
 
+                                                    {showHistoryForTask === task._id && task.history && (
+                                                        <div className="mb-4 p-4 bg-gray-50 rounded-xl border border-gray-100 animate-in slide-in-from-top-2">
+                                                            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                                                <History className="w-3 h-3" /> Chain of Custody
+                                                            </h4>
+                                                            <div className="space-y-4 relative before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-emerald-100">
+                                                                {task.history.map((h: any, i: number) => (
+                                                                    <div key={i} className="relative pl-6">
+                                                                        <div className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-sm" />
+                                                                        <div className="flex justify-between items-start">
+                                                                            <span className="text-sm font-bold text-gray-800 capitalize">{h.status}</span>
+                                                                            <span className="text-[10px] text-gray-400 font-medium">
+                                                                                {new Date(h.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                            </span>
+                                                                        </div>
+                                                                        <p className="text-xs text-gray-500 mt-0.5">{h.note}</p>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
                                                     {['assigned', 'accepted'].includes(task.status) && (
                                                         <div className="flex flex-wrap gap-2 pt-2">
                                                             {task.status === 'assigned' && (
@@ -355,14 +378,25 @@ export default function VolunteerTasksPage() {
                                                     )}
 
                                                     {isActive && (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            onClick={() => setShowMapForTask(showMapForTask === task._id ? null : task._id)}
-                                                            className={`h-9 w-9 ${showMapForTask === task._id ? 'text-emerald-600 bg-emerald-50' : 'text-gray-400'}`}
-                                                        >
-                                                            {showMapForTask === task._id ? <X className="w-5 h-5" /> : <MapIcon className="w-5 h-5" />}
-                                                        </Button>
+                                                        <div className="flex gap-1 ml-auto">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                onClick={() => setShowHistoryForTask(showHistoryForTask === task._id ? null : task._id)}
+                                                                className={`h-9 w-9 ${showHistoryForTask === task._id ? 'text-emerald-600 bg-emerald-50' : 'text-gray-400'}`}
+                                                                title="View Chain of Custody"
+                                                            >
+                                                                <History className="w-5 h-5" />
+                                                            </Button>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                onClick={() => setShowMapForTask(showMapForTask === task._id ? null : task._id)}
+                                                                className={`h-9 w-9 ${showMapForTask === task._id ? 'text-emerald-600 bg-emerald-50' : 'text-gray-400'}`}
+                                                            >
+                                                                {showMapForTask === task._id ? <X className="w-5 h-5" /> : <MapIcon className="w-5 h-5" />}
+                                                            </Button>
+                                                        </div>
                                                     )}
                                                 </div>
                                             </CardContent>

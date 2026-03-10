@@ -265,10 +265,10 @@ export default function VolunteerDashboard() {
                             <div className="flex items-center justify-between mb-6">
                                 <div>
                                     <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">Reliability Score</p>
-                                    <p className="text-2xl font-black text-emerald-600">98.5%</p>
+                                    <p className="text-2xl font-black text-emerald-600">{user?.reliabilityScore ?? 100}%</p>
                                 </div>
                                 <div className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold border border-emerald-100 uppercase tracking-tighter">
-                                    Top Rated
+                                    {((user?.reliabilityScore ?? 100) >= 90) ? 'Top Rated' : 'Reliable'}
                                 </div>
                             </div>
                             <div className="space-y-3">

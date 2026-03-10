@@ -115,6 +115,10 @@ interface Donation {
     status: string;
     servingsCount: number;
     imageUrl?: string;
+    riskScore?: number;
+    riskFactors?: string[];
+    emergencyMode?: boolean;
+    isHighRisk?: boolean;
 }
 
 const getTimeRemaining = (expiryTime: string) => {
@@ -284,10 +288,21 @@ export default function NgoAvailablePage() {
                                     </h4>
                                     {urgent && donation.status === 'available' && (
                                         <span style={{ background: 'linear-gradient(135deg, #fef2f2, #fee2e2)', color: '#dc2626', fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '999px', whiteSpace: 'nowrap', marginLeft: '8px' }}>
-                                            ⚡ URGENT
+                                            ⚡ {donation.emergencyMode ? 'EMERGENCY' : 'URGENT'}
                                         </span>
                                     )}
                                 </div>
+                                {donation.riskScore !== undefined && (
+                                    <div style={{ marginBottom: '8px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                                            <span style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600 }}>SAFETY RISK</span>
+                                            <span style={{ fontSize: '10px', color: donation.riskScore > 75 ? '#dc2626' : donation.riskScore > 40 ? '#ea580c' : '#059669', fontWeight: 800 }}>{donation.riskScore}%</span>
+                                        </div>
+                                        <div style={{ height: '4px', background: '#f3f4f6', borderRadius: '2px', overflow: 'hidden' }}>
+                                            <div style={{ height: '100%', width: `${donation.riskScore}%`, background: donation.riskScore > 75 ? '#ef4444' : donation.riskScore > 40 ? '#f97316' : '#10b981' }} />
+                                        </div>
+                                    </div>
+                                )}
                                 <div style={{ fontSize: '12px', color: '#6b7280', lineHeight: '1.7' }}>
                                     <p style={{ margin: '0 0 2px 0' }}>🏪 {donation.donor.name}</p>
                                     <p style={{ margin: '0 0 2px 0' }}>🍽️ {donation.servingsCount} servings • {donation.quantity} {donation.unit}</p>
@@ -715,10 +730,15 @@ export default function NgoAvailablePage() {
                                                             <div className="flex-1">
                                                                 <div className="flex items-center gap-2 flex-wrap">
                                                                     <h3 className="font-semibold text-lg text-gray-900">{donation.title}</h3>
-                                                                    <span className="hidden md:flex">
+                                                                    <span className="hidden md:flex gap-2">
                                                                         {isUrgent(donation.expiryTime) && donation.status === 'available' && (
-                                                                            <span className="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs font-medium rounded-full flex items-center gap-1">
-                                                                                <AlertCircle className="w-3 h-3" /> Urgent
+                                                                            <span className={`px-2 py-0.5 ${donation.emergencyMode ? 'bg-red-600 text-white' : 'bg-orange-100 text-orange-700'} text-xs font-bold rounded-full flex items-center gap-1`}>
+                                                                                <AlertCircle className="w-3 h-3" /> {donation.emergencyMode ? 'Emergency Mode' : 'Urgent'}
+                                                                            </span>
+                                                                        )}
+                                                                        {donation.riskScore !== undefined && (
+                                                                            <span className={`px-2 py-0.5 ${donation.riskScore > 75 ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-green-50 text-green-700'} text-[10px] font-bold rounded-full flex items-center gap-1`}>
+                                                                                Safety Risk: {donation.riskScore}%
                                                                             </span>
                                                                         )}
                                                                     </span>
