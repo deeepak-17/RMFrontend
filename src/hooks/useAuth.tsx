@@ -11,6 +11,7 @@ interface AuthContextType {
     login: (email: string, password: string) => Promise<void>;
     register: (name: string, email: string, password: string, role: string, organizationType?: string, verificationFile?: File | null, documentType?: string) => Promise<void>;
     logout: () => void;
+    refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -74,7 +75,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 response = await authApi.register(formData);
             } else {
                 // Otherwise use JSON
-                response = await authApi.register({ name, email, password, role, organizationType });
+                const payload: any = { name, email, password, role };
+                if (organizationType) payload.organizationType = organizationType;
+                if (documentType) payload.documentType = documentType;
+                response = await authApi.register(payload);
             }
 
             // NOTE: We don't auto-login here anymore based on RegisterPage logic
@@ -96,6 +100,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         socketService.disconnect();
     };
 
+    const refreshUser = async () => {
+        try {
+            const response = await authApi.getMe();
+            setUser(response.data.data);
+        } catch (error) {
+            console.error('Failed to refresh user:', error);
+        }
+    };
+
     return (
         <AuthContext.Provider
             value={{
@@ -106,6 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 login,
                 register,
                 logout,
+                refreshUser,
             }}
         >
             {children}

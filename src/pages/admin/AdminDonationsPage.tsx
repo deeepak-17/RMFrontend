@@ -100,9 +100,22 @@ export default function AdminDonationsPage() {
                                 </div>
 
                                 <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1">
+                                    <div className="flex items-center gap-2 mb-1 flex-wrap">
                                         <h3 className="font-bold text-lg truncate">{donation.title}</h3>
                                         {getStatusBadge(donation.status, donation.expiryTime)}
+                                        {donation.emergencyMode && (
+                                            <Badge variant="destructive" className="animate-pulse bg-red-600 font-bold border-none shadow-lg shadow-red-100">
+                                                EMERGENCY
+                                            </Badge>
+                                        )}
+                                        {donation.riskScore !== undefined && (
+                                            <div className="flex items-center gap-2 px-2 py-0.5 rounded-full bg-gray-100 border text-[10px] font-bold">
+                                                <span className={`w-2 h-2 rounded-full ${donation.riskScore > 75 ? 'bg-red-500 animate-pulse' :
+                                                        donation.riskScore > 40 ? 'bg-orange-400' : 'bg-green-500'
+                                                    }`} />
+                                                RISK: {donation.riskScore}%
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-500">
                                         <span className="flex items-center gap-1">

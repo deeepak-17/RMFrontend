@@ -99,69 +99,7 @@ const getStreetViewUrl = (lat: number, lng: number) =>
 const getDirectionsUrl = (lat: number, lng: number) =>
     `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
 
-// Mock data - will be replaced with API calls
-const mockDonations = [
-    {
-        _id: '1',
-        title: 'Mixed Lunch Plates',
-        description: 'Variety of rice, curry, vegetables, and desserts from corporate event',
-        quantity: 50,
-        unit: 'servings',
-        foodType: 'prepared',
-        donor: { name: 'Tech Park Canteen', phone: '+91 9876543210' },
-        location: { address: '123 Tech Park, Sector 5', distance: 1.2, coordinates: [13.0827, 80.2707] },
-        expiryTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
-        pickupWindow: { start: new Date().toISOString(), end: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString() },
-        status: 'available',
-        servingsCount: 50,
-        imageUrl: 'https://placehold.co/600x400/orange/white?text=Mixed+Lunch',
-    },
-    {
-        _id: '2',
-        title: 'Fresh Sandwiches & Pastries',
-        description: 'Assorted sandwiches and bakery items, all freshly made today',
-        quantity: 40,
-        unit: 'pieces',
-        foodType: 'bakery',
-        donor: { name: 'Cafe Express', phone: '+91 9876543211' },
-        location: { address: '45 Main Street, City Center', distance: 2.5, coordinates: [13.0850, 80.2750] },
-        expiryTime: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(),
-        pickupWindow: { start: new Date().toISOString(), end: new Date(Date.now() + 5 * 60 * 60 * 1000).toISOString() },
-        status: 'available',
-        servingsCount: 40,
-        imageUrl: 'https://placehold.co/600x400/green/white?text=Sandwiches',
-    },
-    {
-        _id: '3',
-        title: 'Vegetable Biryani',
-        description: 'Leftover from wedding catering, properly stored and fresh',
-        quantity: 100,
-        unit: 'plates',
-        foodType: 'prepared',
-        donor: { name: 'Grand Caterers', phone: '+91 9876543212' },
-        location: { address: '78 Wedding Hall Road', distance: 3.8, coordinates: [13.0800, 80.2650] },
-        expiryTime: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
-        pickupWindow: { start: new Date().toISOString(), end: new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString() },
-        status: 'available',
-        servingsCount: 100,
-        imageUrl: 'https://placehold.co/600x400/red/white?text=Biryani',
-    },
-    {
-        _id: '4',
-        title: 'Rice and Lentils',
-        description: 'Simple home-style meal from temple kitchen prasadam',
-        quantity: 30,
-        unit: 'servings',
-        foodType: 'prepared',
-        donor: { name: 'Sri Temple Kitchen', phone: '+91 9876543213' },
-        location: { address: '12 Temple Street', distance: 0.8, coordinates: [13.0835, 80.2720] },
-        expiryTime: new Date(Date.now() + 1 * 60 * 60 * 1000).toISOString(),
-        pickupWindow: { start: new Date().toISOString(), end: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString() },
-        status: 'available',
-        servingsCount: 30,
-        imageUrl: 'https://placehold.co/600x400/blue/white?text=Rice+Meal',
-    },
-];
+
 
 interface Donation {
     _id: string;
@@ -177,6 +115,10 @@ interface Donation {
     status: string;
     servingsCount: number;
     imageUrl?: string;
+    riskScore?: number;
+    riskFactors?: string[];
+    emergencyMode?: boolean;
+    isHighRisk?: boolean;
 }
 
 const getTimeRemaining = (expiryTime: string) => {
@@ -225,11 +167,10 @@ export default function NgoAvailablePage() {
                     location: d.location || { address: 'Unknown', distance: 0, coordinates: [0, 0] }
                 }));
 
-                setDonations(mappedDonations.length > 0 ? mappedDonations : mockDonations);
+                setDonations(mappedDonations);
             } catch (error) {
                 console.error('Error fetching donations:', error);
-                // Fallback to mock data if API fails
-                setDonations(mockDonations);
+                setDonations([]);
             } finally {
                 setIsLoading(false);
             }
@@ -385,10 +326,21 @@ export default function NgoAvailablePage() {
                                     </h4>
                                     {urgent && donation.status === 'available' && (
                                         <span style={{ background: 'linear-gradient(135deg, #fef2f2, #fee2e2)', color: '#dc2626', fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '999px', whiteSpace: 'nowrap', marginLeft: '8px' }}>
-                                            ⚡ URGENT
+                                            ⚡ {donation.emergencyMode ? 'EMERGENCY' : 'URGENT'}
                                         </span>
                                     )}
                                 </div>
+                                {donation.riskScore !== undefined && (
+                                    <div style={{ marginBottom: '8px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                                            <span style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600 }}>SAFETY RISK</span>
+                                            <span style={{ fontSize: '10px', color: donation.riskScore > 75 ? '#dc2626' : donation.riskScore > 40 ? '#ea580c' : '#059669', fontWeight: 800 }}>{donation.riskScore}%</span>
+                                        </div>
+                                        <div style={{ height: '4px', background: '#f3f4f6', borderRadius: '2px', overflow: 'hidden' }}>
+                                            <div style={{ height: '100%', width: `${donation.riskScore}%`, background: donation.riskScore > 75 ? '#ef4444' : donation.riskScore > 40 ? '#f97316' : '#10b981' }} />
+                                        </div>
+                                    </div>
+                                )}
                                 <div style={{ fontSize: '12px', color: '#6b7280', lineHeight: '1.7' }}>
                                     <p style={{ margin: '0 0 2px 0' }}>🏪 {donation.donor.name}</p>
                                     <p style={{ margin: '0 0 2px 0' }}>🍽️ {donation.servingsCount} servings • {donation.quantity} {donation.unit}</p>
@@ -816,10 +768,15 @@ export default function NgoAvailablePage() {
                                                             <div className="flex-1">
                                                                 <div className="flex items-center gap-2 flex-wrap">
                                                                     <h3 className="font-semibold text-lg text-gray-900">{donation.title}</h3>
-                                                                    <span className="hidden md:flex">
+                                                                    <span className="hidden md:flex gap-2">
                                                                         {isUrgent(donation.expiryTime) && donation.status === 'available' && (
-                                                                            <span className="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs font-medium rounded-full flex items-center gap-1">
-                                                                                <AlertCircle className="w-3 h-3" /> Urgent
+                                                                            <span className={`px-2 py-0.5 ${donation.emergencyMode ? 'bg-red-600 text-white' : 'bg-orange-100 text-orange-700'} text-xs font-bold rounded-full flex items-center gap-1`}>
+                                                                                <AlertCircle className="w-3 h-3" /> {donation.emergencyMode ? 'Emergency Mode' : 'Urgent'}
+                                                                            </span>
+                                                                        )}
+                                                                        {donation.riskScore !== undefined && (
+                                                                            <span className={`px-2 py-0.5 ${donation.riskScore > 75 ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-green-50 text-green-700'} text-[10px] font-bold rounded-full flex items-center gap-1`}>
+                                                                                Safety Risk: {donation.riskScore}%
                                                                             </span>
                                                                         )}
                                                                     </span>

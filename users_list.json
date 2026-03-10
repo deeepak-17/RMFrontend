@@ -1,0 +1,511 @@
+[
+  {
+    "_id": "698cbc5a6f7ef25e5bd11fdb",
+    "name": "Jamesbond",
+    "email": "jamesbond@gmail.com",
+    "password": "$2b$10$K7uoyFx8MBuIdfRBxqPZ1.fUEt5UInofBDlGWsKZisBmYNWRGTWla",
+    "role": "donor",
+    "verified": true,
+    "createdAt": "2026-02-11T17:28:58.100Z",
+    "__v": 0
+  },
+  {
+    "_id": "698cbddc7f962b63f19c61ec",
+    "name": "Jamesbond",
+    "email": "bond@gmail.com",
+    "password": "$2b$10$kgVhDllj098lGNbnucy71.81DyiNtWDojBQjirx2vlB7SppbwhAVW",
+    "role": "donor",
+    "verified": true,
+    "createdAt": "2026-02-11T17:35:24.103Z",
+    "__v": 0
+  },
+  {
+    "_id": "698cbe247f962b63f19c61ef",
+    "name": "Jamesbond",
+    "email": "bondz@gmail.com",
+    "password": "$2b$10$LgglSWFkvWWtcQ.Zly70VOuFvLBDSWaeDWmxbpXT6wKaAsATc.VX6",
+    "role": "donor",
+    "verified": true,
+    "createdAt": "2026-02-11T17:36:36.744Z",
+    "__v": 0
+  },
+  {
+    "_id": "698ebbd59771875a7984b77e",
+    "name": "deepak",
+    "email": "deepak@gmail.com",
+    "password": "$2b$10$b6ujm7ysvoAMmpyI02dyBuAfPt3Y0hvZdPdbr3iRUv9XYOEEZMPsG",
+    "role": "volunteer",
+    "verified": false,
+    "createdAt": "2026-02-13T05:51:17.103Z",
+    "__v": 0
+  },
+  {
+    "_id": "698ebc1b9771875a7984b782",
+    "name": "sushil",
+    "email": "sushil@gmail.com",
+    "password": "$2b$10$imLGU84xsFZwcdPXQX8lWu2LKmOVLgMjDlDwPh1AA4ch5QeQzwn2a",
+    "role": "donor",
+    "verified": true,
+    "createdAt": "2026-02-13T05:52:27.420Z",
+    "__v": 0
+  },
+  {
+    "_id": "699206b39771875a7984b798",
+    "name": "batman",
+    "email": "batman@gmail.com",
+    "password": "$2b$10$yPUk/WllzbYQN8C4BAqU4uH6nwqbMRoXaMWoVIdSjJyDTC5K1leYe",
+    "role": "donor",
+    "verified": true,
+    "organizationType": "canteen",
+    "createdAt": "2026-02-15T17:47:31.170Z",
+    "__v": 0
+  },
+  {
+    "_id": "69920a429771875a7984b79d",
+    "name": "spidey",
+    "email": "spidey@gmail.com",
+    "password": "$2b$10$HhVIvb9mNtkdZZi1HUSNAO5B7U9dfJer4NeWZm21wuJjsZTVsZ.cy",
+    "role": "donor",
+    "verified": true,
+    "organizationType": "restaurant",
+    "createdAt": "2026-02-15T18:02:42.655Z",
+    "__v": 0
+  },
+  {
+    "_id": "69920ac19771875a7984b7a0",
+    "name": "captain",
+    "email": "capam@gmail.com",
+    "password": "$2b$10$8pSMeWrM4X13mlOa5cLVdeGTLMLdIuSBTDfj8yQcRAKvAX.1CKFEC",
+    "role": "volunteer",
+    "verified": false,
+    "createdAt": "2026-02-15T18:04:49.818Z",
+    "__v": 0
+  },
+  {
+    "_id": "69929f7742f0866aed8c2aa3",
+    "name": "Alice",
+    "email": "alice@example.com",
+    "password": "$2b$10$FEDCwPZKtC3mOmP8KBwhtebMLsyAkLFNSzjcvvL59Ot/cBEMOZABW",
+    "role": "donor",
+    "verified": true,
+    "createdAt": "2026-02-16T04:39:19.823Z",
+    "__v": 0
+  },
+  {
+    "_id": "69929fbf42f0866aed8c2aa6",
+    "name": "Sam",
+    "email": "sam123@gmail.com",
+    "password": "$2b$10$iaMvXDNezfessYUhwdVxBO4AOPeviRleIGbPEi3GkOIhZJ/2fN5ge",
+    "role": "ngo",
+    "verified": false,
+    "organizationType": "canteen",
+    "createdAt": "2026-02-16T04:40:31.661Z",
+    "__v": 0
+  },
+  {
+    "_id": "6992bf25589ad9d5547d923c",
+    "name": "nandha",
+    "email": "nandha@gmail.com",
+    "password": "$2b$10$r.QfS.y.CJ.daMQgE7DTtOdLdSKcxcZBjKzACXTg3qTNl38wumiIW",
+    "role": "ngo",
+    "verified": false,
+    "createdAt": "2026-02-16T06:54:29.678Z",
+    "__v": 0
+  },
+  {
+    "_id": "6992f567b44451d5c3a770a5",
+    "name": "Alice",
+    "email": "alice123@example.com",
+    "password": "$2b$10$Bhygsm0utBx5YHssLdJEH.iyKFbjkpvAYQ6H8QrZWDi7Sacocst.S",
+    "role": "donor",
+    "verified": true,
+    "createdAt": "2026-02-16T10:45:59.488Z",
+    "__v": 0
+  },
+  {
+    "_id": "6992f62db44451d5c3a770a9",
+    "name": "Ramya",
+    "email": "ramya123@gmail.com",
+    "password": "$2b$10$gNyDX9HicYFrLecMsc48m.kS4bj.C6qg1v4dO9H3yZIbKEOIXI6ma",
+    "role": "volunteer",
+    "verified": false,
+    "createdAt": "2026-02-16T10:49:17.121Z",
+    "__v": 0
+  },
+  {
+    "_id": "6992b16f751772af86a036c7",
+    "name": "SUSHIL V",
+    "email": "sushilv2005@gmail.com",
+    "password": "$2b$10$fp8Bg8kLxN9BevJYrICqPeh0gMWoEfvRMNPGwmkWuwFKkz6k5jTXa",
+    "role": "volunteer",
+    "verified": false,
+    "organizationType": "restaurant",
+    "createdAt": "2026-02-16T05:55:59.467Z",
+    "__v": 0
+  },
+  {
+    "_id": "6993036c6a6675e86c095559",
+    "name": "deepak",
+    "email": "deepak17@gmail.com",
+    "password": "$2b$10$PL4d9.qfeyo6O8A0MF0JHuCEAQHXUrxn0gAUMPUecQRJpRrnTE9DC",
+    "role": "volunteer",
+    "verified": false,
+    "createdAt": "2026-02-16T11:45:48.076Z",
+    "__v": 0
+  },
+  {
+    "_id": "6993045539a2faf2302aba1a",
+    "name": "RANI",
+    "email": "rani123@gmail.com",
+    "password": "$2b$10$eDZQPmxeRlvP1q3wFVO9UOl70ZfwR6D2FP/mmMpJZq8TiSf4BV16y",
+    "role": "volunteer",
+    "verified": false,
+    "createdAt": "2026-02-16T11:49:41.645Z",
+    "__v": 0
+  },
+  {
+    "_id": "6993054739a2faf2302aba1e",
+    "name": "ADMIN",
+    "email": "admin@123gamil.com",
+    "password": "$2b$10$EkaXL4OgBE/rzPzx1gnvq.Ki/UJ7qH2hul0G4NCWObf76ObIazVWO",
+    "role": "volunteer",
+    "verified": false,
+    "createdAt": "2026-02-16T11:53:43.427Z",
+    "__v": 0
+  },
+  {
+    "_id": "699305dc39a2faf2302aba23",
+    "name": "abc",
+    "email": "abc123@gmail.com",
+    "password": "$2b$10$N5wbFOK07XeAmmRApUEmX.iU7BH24HiwGC3.3bYzz.xAMwEWGxBXG",
+    "role": "volunteer",
+    "verified": false,
+    "createdAt": "2026-02-16T11:56:12.099Z",
+    "__v": 0
+  },
+  {
+    "_id": "6993060c39a2faf2302aba27",
+    "name": "bcd",
+    "email": "bcd123@gmail.com",
+    "password": "$2b$10$DVRJopoVvRvlVYTgh/vyWeENzL9WPaKt7hNB1DA67maTtIN5cC/O2",
+    "role": "volunteer",
+    "verified": false,
+    "createdAt": "2026-02-16T11:57:00.546Z",
+    "__v": 0
+  },
+  {
+    "_id": "69930ac217462a7ac5c3c1a5",
+    "name": "efgh",
+    "email": "efgh123@gmail.com",
+    "password": "$2b$10$SWb7oC3k07ifjNccuyimYuEP1/Wkj3clO4WADXLSAHmG8Fr6PJX0K",
+    "role": "donor",
+    "verified": true,
+    "organizationType": "restaurant",
+    "createdAt": "2026-02-16T12:17:06.322Z",
+    "__v": 0
+  },
+  {
+    "_id": "6992c02e751772af86a036d4",
+    "name": "sus",
+    "email": "sus@gmail.com",
+    "password": "$2b$10$DCk/nVVSgkEu3GEhphrkAekgbYceXMYe3pSvIealu3LaKOTLEbptq",
+    "role": "donor",
+    "verified": true,
+    "organizationType": "restaurant",
+    "createdAt": "2026-02-16T06:58:54.970Z",
+    "__v": 0
+  },
+  {
+    "_id": "6992c0c2751772af86a036e0",
+    "name": "sushi",
+    "email": "sushi@gmail.com",
+    "password": "$2b$10$Q4wEvontrW65FhmmKe6u7eHgPsZtkRoDbnLBhQtw3NPi6c3BWv6T2",
+    "role": "ngo",
+    "verified": false,
+    "createdAt": "2026-02-16T07:01:22.924Z",
+    "__v": 0
+  },
+  {
+    "_id": "69930f5d17462a7ac5c3c1d2",
+    "name": "RAM",
+    "email": "ram123@gmail.com",
+    "password": "$2b$10$W78/gC6boz6xZRVSmpYXX.tGKUSzUrX7wmAKXk2DMyqfRKdLT4Hom",
+    "role": "volunteer",
+    "verified": false,
+    "createdAt": "2026-02-16T12:36:45.650Z",
+    "__v": 0
+  },
+  {
+    "_id": "699316736acb211b8b61213a",
+    "name": "abcd",
+    "email": "abcd123@gmail.com",
+    "password": "$2b$10$b.h9gKCtSjrz6Qhajn2nrO9/rU1UcNuC8lzUzz0VN55/M3f//Njxm",
+    "role": "donor",
+    "verified": true,
+    "organizationType": "event",
+    "createdAt": "2026-02-16T13:06:59.909Z",
+    "__v": 0
+  },
+  {
+    "_id": "6993172a6acb211b8b61214f",
+    "name": "efgh",
+    "email": "efgh123@gmali.com",
+    "password": "$2b$10$SJmPRNgf/20NJPhBdiXg9ucRTbxMPnF7ch3VuEh6i.j70JwfoO7gy",
+    "role": "volunteer",
+    "verified": true,
+    "createdAt": "2026-02-16T13:10:02.038Z",
+    "__v": 0,
+    "sustainabilityCredits": 20,
+    "isAvailable": true
+  },
+  {
+    "_id": "69931a2cb82a60eb45e9088b",
+    "name": "ijkl",
+    "email": "ijkl123@gmail.com",
+    "password": "$2b$10$cKCiw7Nk23l0MeMsgfALEO3li0zl7Ro3k6JjHq5PTf2H0MSNS9DcC",
+    "role": "volunteer",
+    "verified": true,
+    "createdAt": "2026-02-16T13:22:52.132Z",
+    "__v": 0
+  },
+  {
+    "_id": "69944cd1879ba7199de0416a",
+    "name": "example",
+    "email": "example@mail.com",
+    "password": "$2b$10$.shBg5i/if5RFvQdYmRwyeytJr3O2KUVS7AauzKfUSM87UFAQFvQG",
+    "role": "donor",
+    "verified": true,
+    "organizationType": "restaurant",
+    "createdAt": "2026-02-17T11:11:13.254Z",
+    "__v": 0
+  },
+  {
+    "_id": "69944e5c879ba7199de04181",
+    "name": "ngo1",
+    "email": "ngo@gmail.com",
+    "password": "$2b$10$6q/NMborJDzPEEamNJiVwObULCxqZ3XDZjfEG9HDklGvs6kNfC7Nm",
+    "role": "ngo",
+    "verified": true,
+    "createdAt": "2026-02-17T11:17:48.730Z",
+    "__v": 0
+  },
+  {
+    "_id": "69944ea1879ba7199de0418d",
+    "name": "volunteer1",
+    "email": "vol@gmail.com",
+    "password": "$2b$10$TMLwVJh0Jt7E4ztaWRCa4enyOzfH27RbWkyC8PlB.fUfS50rhsIk2",
+    "role": "volunteer",
+    "verified": true,
+    "createdAt": "2026-02-17T11:18:57.064Z",
+    "__v": 0
+  },
+  {
+    "_id": "69944ede879ba7199de04193",
+    "name": "admin",
+    "email": "admin@gmail.com",
+    "password": "$2b$10$mQXFw1LHGIVj7K3Vt9hgb.68WlN52Tdvtux/GHficUIy.DOeIJxtq",
+    "role": "admin",
+    "verified": true,
+    "createdAt": "2026-02-17T11:19:58.723Z",
+    "__v": 0
+  },
+  {
+    "_id": "699452e4ca19bf7d431ddaa9",
+    "name": "sus1",
+    "email": "donor1@gmail.com",
+    "password": "$2b$10$.yu0XZChkhhjzmCcF.k5Q.Mg9XwStVfZF1v1U.xzpcijKU57.fUGi",
+    "role": "donor",
+    "verified": true,
+    "organizationType": "canteen",
+    "createdAt": "2026-02-17T11:37:08.874Z",
+    "__v": 0
+  },
+  {
+    "_id": "69945494ca19bf7d431ddad9",
+    "name": "sus2",
+    "email": "ngo1@gmail.com",
+    "password": "$2b$10$kWQD.IewoMgyuDm3kY02g.ECjOIrK9/JnvVpP5CPlefiuvq6tzNvu",
+    "role": "ngo",
+    "verified": true,
+    "createdAt": "2026-02-17T11:44:20.392Z",
+    "__v": 0
+  },
+  {
+    "_id": "69945567ca19bf7d431ddafc",
+    "name": "sus3",
+    "email": "volunteer1@gmail.com",
+    "password": "$2b$10$X7qNxmeeSxxOO3c6LfQpuu7a./wzmCjFwzeXC8poaTlblW32nD4xu",
+    "role": "volunteer",
+    "verified": true,
+    "createdAt": "2026-02-17T11:47:51.028Z",
+    "__v": 0
+  },
+  {
+    "_id": "69949e713bc26662ab9119b6",
+    "name": "ngoo",
+    "email": "ngo_veri@gmail.com",
+    "password": "$2b$10$BRwM1XdPPxQQ9beI2FhlNOwsjts2y/j9MGaHRfxYiEcUIjQgNeGuC",
+    "role": "ngo",
+    "verified": false,
+    "documentType": "ngo_license",
+    "createdAt": "2026-02-17T16:59:29.907Z",
+    "__v": 0
+  },
+  {
+    "_id": "6994a24ec631bd21ba72b5c2",
+    "name": "ngooo",
+    "email": "ngo_debug@gmail.com",
+    "password": "$2b$10$ReTj1xVBSt5dxotrxtpdv.XXup191EMnFCTof5dsS1xaAKaq3pDUe",
+    "role": "ngo",
+    "verified": true,
+    "documentType": "ngo_license",
+    "createdAt": "2026-02-17T17:15:58.562Z",
+    "__v": 0
+  },
+  {
+    "_id": "6994a2f3c631bd21ba72b5c5",
+    "name": "ngo_fix",
+    "email": "ngo_fix@gmail.com",
+    "password": "$2b$10$OqJOGrbCNC1OpRg6ODURNe6fla1Qo1DUs/pF1DbB4aPStuNu1UdR.",
+    "role": "ngo",
+    "verified": true,
+    "verificationDocument": "uploads/verification/ngo-1771348723748-596724873.jpeg",
+    "documentType": "tax_exemption",
+    "createdAt": "2026-02-17T17:18:43.807Z",
+    "__v": 0
+  },
+  {
+    "_id": "6994a652c631bd21ba72b5f3",
+    "name": "ngo_test",
+    "email": "ngo_tes@gmail.com",
+    "password": "$2b$10$RCmpZhA2F3l4K5gF863T0.co3FnK6ed20fB2z13aCTIf4/qRNLtDq",
+    "role": "ngo",
+    "verified": true,
+    "verificationDocument": "uploads/verification/ngo-1771349586091-267037438.jpeg",
+    "documentType": "tax_exemption",
+    "createdAt": "2026-02-17T17:33:06.145Z",
+    "__v": 0
+  },
+  {
+    "_id": "6994b6c31677cc6a4a3e9c22",
+    "name": "volu",
+    "email": "vol_test@gmail.com",
+    "password": "$2b$10$43c8ZKiXiBRP55qpxIU0PehxVO0lCTw/I9ELJL57dxbqr0393o/EK",
+    "role": "volunteer",
+    "verified": true,
+    "createdAt": "2026-02-17T18:43:15.798Z",
+    "__v": 0
+  },
+  {
+    "_id": "69954b6b0ba568a74ad7142d",
+    "name": "donor",
+    "email": "donor@gmail.com",
+    "password": "$2b$10$avFUerW0MAvfxEY7lHRbT.XJrUGttWKi/HgsrIiXFy.CsvRTR0cIK",
+    "role": "donor",
+    "verified": true,
+    "organizationType": "restaurant",
+    "createdAt": "2026-02-18T05:17:31.498Z",
+    "__v": 0
+  },
+  {
+    "_id": "6995780340e0c0f096730a8d",
+    "name": "volu_demo",
+    "email": "vol_demo@gmail.com",
+    "password": "$2b$10$cn3Kc08YOkS16r9FoDaOMeV31qY6w9MVGtyyor2S5AWc.ErnTGSFe",
+    "role": "volunteer",
+    "verified": true,
+    "createdAt": "2026-02-18T08:27:47.914Z",
+    "__v": 0
+  },
+  {
+    "_id": "69958efd038ba3d0b8856822",
+    "name": "ngo1",
+    "email": "ngo_mam@gmail.com",
+    "password": "$2b$10$Ggn95DPCALzGE7FsSfGVBeTPFX2N36IYjPMsahACzb4KQJJL1zP7u",
+    "role": "ngo",
+    "verified": false,
+    "verificationDocument": "uploads/verification/ngo-1771409149369-604324134.jpeg",
+    "documentType": "registration_cert",
+    "createdAt": "2026-02-18T10:05:49.670Z",
+    "__v": 0
+  },
+  {
+    "_id": "69ad1c483c3986f73ec051e6",
+    "name": "Donor User",
+    "email": "donor-abcd123@gmail.com",
+    "password": "$2b$10$9okX2mWD12.K9fraJ1OcoOrGs7sJ6W.Gkl4JCKHva03xDCuEda8pm",
+    "role": "donor",
+    "verified": true,
+    "isAvailable": true,
+    "sustainabilityCredits": 0,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        77.209,
+        28.6139
+      ]
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69ad1c483c3986f73ec051e9",
+    "name": "NGO User",
+    "email": "ngo-ijkl123@gmail.com",
+    "password": "$2b$10$sFiojPEw3fSSWTJBx5275OZad2P4CTNl4tWH/273ijLCNFKF4X8Su",
+    "role": "ngo",
+    "verified": true,
+    "isAvailable": true,
+    "sustainabilityCredits": 0,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        77.209,
+        28.6139
+      ]
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69ad1c483c3986f73ec051ec",
+    "name": "Volunteer User",
+    "email": "volunteer-efgh123@gmali.com",
+    "password": "$2b$10$dfjGMT7V6NHPuNzQDxzbHeUlM/eG/1Ml.yX8cx/RMy/VGbYh5BwCm",
+    "role": "volunteer",
+    "verified": true,
+    "isAvailable": true,
+    "sustainabilityCredits": 0,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        77.209,
+        28.6139
+      ]
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69ad4d343f9fb9f62f926623",
+    "name": "Test Volunteer 2",
+    "email": "test.volunteer.2@example.com",
+    "password": "$2b$10$PQCzhewqbVrsz70/FNqVy.jLRrIQmPoJ72RXWFfptdRtBwgeHvddu",
+    "role": "volunteer",
+    "verified": false,
+    "isAvailable": true,
+    "sustainabilityCredits": 0,
+    "createdAt": "2026-03-08T10:19:32.264Z",
+    "__v": 0
+  },
+  {
+    "_id": "69ad4d723f9fb9f62f926626",
+    "name": "Radha",
+    "email": "aliceradha123@example.com",
+    "password": "$2b$10$8EGK9DWcsYZ68Jm8zyHMeOXKyjO3X/IICo8xFpn0mc2jHy9C7CZcK",
+    "role": "volunteer",
+    "verified": false,
+    "documentType": "registration_cert",
+    "isAvailable": true,
+    "sustainabilityCredits": 0,
+    "createdAt": "2026-03-08T10:20:34.689Z",
+    "__v": 0
+  }
+]

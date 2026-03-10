@@ -1,0 +1,23 @@
+{
+  "_id": "69ad3635c2fb04f9796a0ffe",
+  "donorId": "699316736acb211b8b61213a",
+  "title": "Fish Biryani",
+  "description": "",
+  "foodType": "non-veg",
+  "quantity": "25 plates",
+  "preparedTime": "2026-03-08T08:40:00.000Z",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      76.89957756709417,
+      10.906714565058804
+    ],
+    "address": "abcd colony ,1234,cbe"
+  },
+  "status": "available",
+  "imageUrl": "/uploads/image-1772959285817-83050413.jpg",
+  "createdAt": "2026-03-08T08:41:25.830Z",
+  "updatedAt": "2026-03-08T08:41:25.830Z",
+  "expiryTime": "2026-03-08T12:40:00.000Z",
+  "__v": 0
+}
