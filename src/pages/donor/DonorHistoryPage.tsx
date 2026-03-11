@@ -10,7 +10,7 @@
  * - Filter by status (available, reserved, collected, expired)
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -105,6 +105,44 @@ export default function DonorHistoryPage() {
     };
 
     const navigate = useNavigate();
+
+    // Keep a ref to donations so voice-command handler always sees latest state
+    const donationsRef = useRef(donations);
+    useEffect(() => { donationsRef.current = donations; }, [donations]);
+
+    // Voice command handler for history page
+    useEffect(() => {
+        const handle = (e: Event) => {
+            const { key } = (e as CustomEvent).detail;
+            const current = donationsRef.current;
+
+            if (key === 'refresh-list') {
+                fetchDonations();
+            } else if (key === 'filter-all') {
+                setFilter('all');
+            } else if (key === 'filter-available') {
+                setFilter('available');
+            } else if (key === 'filter-reserved') {
+                setFilter('reserved');
+            } else if (key === 'filter-collected') {
+                setFilter('collected');
+            } else if (key === 'track-latest') {
+                // Click the first Track button in the DOM
+                const trackBtn = document.querySelector<HTMLButtonElement>('[data-va="track"]');
+                trackBtn?.click();
+            } else if (key === 'delete-latest') {
+                // Delete the first available donation
+                const first = current.find((d) => d.status === 'available');
+                if (first) handleDelete(first._id);
+            } else if (key === 'edit-latest') {
+                // Navigate to edit the first available donation
+                const first = current.find((d) => d.status === 'available');
+                if (first) navigate(`/donor/edit/${first._id}`);
+            }
+        };
+        window.addEventListener('va-action', handle);
+        return () => window.removeEventListener('va-action', handle);
+    }, []);
 
     return (
         <div className="min-h-screen bg-neutral-50 p-4">
@@ -233,7 +271,7 @@ export default function DonorHistoryPage() {
                                             {/* Track Button (Dialog) */}
                                             <Dialog>
                                                 <DialogTrigger asChild>
-                                                    <Button variant="outline" size="sm" className="ml-2 gap-1">
+                                                    <Button data-va="track" variant="outline" size="sm" className="ml-2 gap-1">
                                                         <Clock className="w-3 h-3" /> Track
                                                     </Button>
                                                 </DialogTrigger>

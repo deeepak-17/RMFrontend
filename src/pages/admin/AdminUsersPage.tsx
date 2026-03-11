@@ -18,7 +18,6 @@ export default function AdminUsersPage() {
         { _id: '1', name: 'John Doe', email: 'john@example.com', role: 'donor', verified: true, createdAt: new Date().toISOString(), sustainabilityCredits: 10, languagePref: 'en' },
         { _id: '2', name: 'Helping Hands', email: 'contact@helpinghands.org', role: 'ngo', verified: false, createdAt: new Date().toISOString(), sustainabilityCredits: 0, languagePref: 'en' },
         { _id: '3', name: 'Mike Volunteer', email: 'mike@vol.com', role: 'volunteer', verified: true, createdAt: new Date().toISOString(), sustainabilityCredits: 50, languagePref: 'en' },
-        { _id: '4', name: 'Sarah Admin', email: 'sarah@admin.com', role: 'admin', verified: true, createdAt: new Date().toISOString(), sustainabilityCredits: 0, languagePref: 'en' },
         { _id: '5', name: 'New NGO', email: 'info@newngo.org', role: 'ngo', verified: false, createdAt: new Date().toISOString(), sustainabilityCredits: 0, languagePref: 'en' },
     ];
 
@@ -79,6 +78,9 @@ export default function AdminUsersPage() {
     };
 
     const filteredUsers = users.filter(user => {
+        // Explicitly exclude System Admin
+        if (user.role === 'admin' || user.email === 'admin@resqmeals.com') return false;
+
         const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             user.email.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesRole = roleFilter === 'all' || user.role === roleFilter;

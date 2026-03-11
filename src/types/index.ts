@@ -8,9 +8,20 @@ export interface User {
     verified: boolean;
     sustainabilityCredits: number;
     languagePref: string;
+    isAvailable?: boolean;
+    totalDeliveries?: number;
+    totalDistance?: number;
+    reliabilityScore?: number;
+    completedTasks?: number;
+    totalAssignedTasks?: number;
     createdAt: string;
     verificationDocument?: string;
     documentType?: string;
+    location?: {
+        type: 'Point';
+        coordinates: [number, number]; // [lng, lat]
+        address?: string;
+    };
 }
 
 export interface AuthResponse {
@@ -23,7 +34,7 @@ export interface FoodDonation {
     _id: string;
     donorId: string | User;
     title: string;
-    foodType: 'veg' | 'non-veg' | 'vegan';
+    foodType: 'veg' | 'non-veg' | 'vegan' | string;
     quantity: string; // Changed from number to string to match backend "50 plates"
     unit?: string; // Optional, inferred from quantity string
     preparedTime: string; // Backend sends this
@@ -37,6 +48,11 @@ export interface FoodDonation {
         address?: string;
     };
     status: 'available' | 'reserved' | 'collected' | 'expired';
+    // User Story 5.1 & 5.6
+    riskScore?: number;
+    riskFactors?: string[];
+    isHighRisk?: boolean;
+    emergencyMode?: boolean;
     createdAt: string;
     // NGO Workflow
     reservedBy?: string;
@@ -46,7 +62,7 @@ export interface FoodDonation {
 
 export interface CreateDonationInput {
     title: string;
-    foodType: 'veg' | 'non-veg' | 'vegan';
+    foodType: 'veg' | 'non-veg' | 'vegan' | string;
     quantity: number;
     unit: 'kg' | 'plates' | 'servings';
     preparedAt: string;
@@ -60,13 +76,22 @@ export interface CreateDonationInput {
 // Pickup Task types (Volunteer)
 export interface PickupTask {
     _id: string;
-    donationId: string;
+    donationId: string | any;
     donation?: FoodDonation;
     volunteerId: string;
-    status: 'assigned' | 'accepted' | 'picked' | 'delivered';
+    ngoId?: any;
+    status: 'assigned' | 'accepted' | 'picked' | 'delivered' | 'declined' | 'pending';
     assignedAt: string;
     pickedAt?: string;
     deliveredAt?: string;
+    priority?: 'Normal' | 'High';
+    // User Story 5.3: Chain-of-Custody Tracking
+    history?: Array<{
+        status: string;
+        timestamp: string;
+        updatedBy?: string;
+        note?: string;
+    }>;
     pickupLocation: {
         coordinates: [number, number];
         address?: string;

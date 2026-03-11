@@ -1,6 +1,6 @@
 export default function MissionStatement() {
   return (
-    <section className="relative w-full py-24 bg-gradient-to-br from-emerald-950 to-teal-900 border-t border-white/10 overflow-hidden">
+    <section id="about" className="relative w-full py-24 bg-gradient-to-br from-emerald-950 to-teal-900 border-t border-white/10 overflow-hidden">
       {/* Subtle radial glow */}
       <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
         <div className="w-[600px] h-[300px] rounded-full bg-teal-400/8 blur-3xl" />

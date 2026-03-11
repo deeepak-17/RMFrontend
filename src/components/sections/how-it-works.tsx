@@ -34,7 +34,7 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section className="relative py-28 bg-white overflow-hidden">
+    <section id="how-it-works" className="relative py-28 bg-white overflow-hidden">
       {/* Background accent */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-200 to-transparent" />
 

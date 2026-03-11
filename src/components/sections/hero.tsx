@@ -83,7 +83,7 @@ export default function HeroSection() {
             to="/register"
             className="w-full flex items-center justify-center font-bold text-white bg-orange-500 hover:bg-orange-600 rounded-full py-4 text-base shadow-lg shadow-orange-500/30 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
           >
-            Get Started Free
+            Register
           </Link>
           <Link
             to="/login"

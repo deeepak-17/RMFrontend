@@ -11,7 +11,7 @@
  * - Call donationsApi.create() on submit
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,6 +27,7 @@ export default function AddFoodPage() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
     const navigate = useNavigate();
+    const formRef = useRef<HTMLFormElement>(null);
 
     // Form state
     const [title, setTitle] = useState('');
@@ -70,6 +71,36 @@ export default function AddFoodPage() {
             setError('Geolocation is not supported by your browser.');
         }
     };
+
+    // Voice command listener
+    useEffect(() => {
+        const handleVAAction = (e: Event) => {
+            const { key } = (e as CustomEvent).detail;
+            if (key === 'submit-form') {
+                formRef.current?.requestSubmit();
+            } else if (key === 'get-location') {
+                getCurrentLocation();
+            } else if (key === 'set-veg') {
+                setFoodType('veg');
+            } else if (key === 'set-nonveg') {
+                setFoodType('non-veg');
+            } else if (key === 'set-vegan') {
+                setFoodType('vegan');
+            }
+            // ── fill-field (from detectFieldFill) ──
+            else if (key === 'fill-field') {
+                const { field, value } = (e as CustomEvent).detail;
+                if (field === 'title')      setTitle(value);
+                else if (field === 'quantity')   setQuantity(value);
+                else if (field === 'unit')       setUnit(value as 'kg' | 'plates' | 'servings');
+                else if (field === 'address')    setAddress(value);
+                else if (field === 'preparedAt') setPreparedAt(value);
+                else if (field === 'foodType')   setFoodType(value as 'veg' | 'non-veg' | 'vegan');
+            }
+        };
+        window.addEventListener('va-action', handleVAAction);
+        return () => window.removeEventListener('va-action', handleVAAction);
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -143,7 +174,7 @@ export default function AddFoodPage() {
                         <CardTitle className="text-2xl text-emerald-600">Donate Food</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
                             {/* Food Description */}
                             <div className="space-y-2">
                                 <Label htmlFor="title">Food Description *</Label>

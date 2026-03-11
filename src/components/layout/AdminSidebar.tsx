@@ -6,7 +6,8 @@ import {
     ShieldCheck,
     Package
 } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import {
     Sidebar,
     SidebarContent,
@@ -21,8 +22,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function AdminSidebar() {
     const pathname = useLocation().pathname;
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
 
     const isActive = (path: string) => pathname === path;
+
+    const handleLogout = () => {
+        logout();
+        navigate("/");
+    };
 
     return (
         <Sidebar collapsible="icon">
@@ -102,19 +110,22 @@ export function AdminSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
-                            tooltip="Profile"
-                            className="hover:bg-destructive/10 hover:text-destructive transition-colors"
+                            tooltip="Logout"
+                            onClick={handleLogout}
+                            className="hover:bg-destructive/10 hover:text-destructive transition-colors group/logout"
                         >
-                            <div className="flex items-center gap-2">
-                                <Avatar className="h-6 w-6 rounded-lg">
+                            <div className="flex items-center gap-2 overflow-hidden w-full">
+                                <Avatar className="h-6 w-6 rounded-lg shrink-0">
                                     <AvatarImage src="https://github.com/shadcn.png" alt="Admin" />
-                                    <AvatarFallback className="rounded-lg">AD</AvatarFallback>
+                                    <AvatarFallback className="rounded-lg bg-primary/10 text-primary">
+                                        {user?.name?.substring(0, 2).toUpperCase() || 'AD'}
+                                    </AvatarFallback>
                                 </Avatar>
-                                <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-semibold">Admin User</span>
-                                    <span className="truncate text-xs text-muted-foreground">admin@resq.com</span>
+                                <div className="grid flex-1 text-left text-sm leading-tight transition-all group-data-[collapsible=icon]:opacity-0">
+                                    <span className="truncate font-semibold">{user?.name || "Admin User"}</span>
+                                    <span className="truncate text-xs text-muted-foreground">{user?.email || "admin@resq.com"}</span>
                                 </div>
-                                <LogOut className="ml-auto size-4" />
+                                <LogOut className="ml-auto size-4 shrink-0 transition-transform group-hover/logout:translate-x-1" />
                             </div>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
