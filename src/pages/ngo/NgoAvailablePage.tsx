@@ -312,69 +312,72 @@ export default function NgoAvailablePage() {
                     fillOpacity: 0.05, weight: 1, dashArray: '6 4',
                 }}
             />
-            {sortedDonations.map((donation) => {
-                const urgent = isUrgent(donation.expiryTime);
-                const icon = donation.status === 'claimed' ? claimedIcon : urgent ? urgentIcon : normalIcon;
-                const coords = donation.location.coordinates;
-                return (
-                    <Marker key={donation._id} position={[coords[0], coords[1]] as L.LatLngExpression} icon={icon}>
-                        <Popup maxWidth={280} minWidth={230}>
-                            <div style={{ fontFamily: 'system-ui, sans-serif' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                                    <h4 style={{ fontWeight: 700, fontSize: '15px', margin: 0, color: '#111827', lineHeight: '1.3' }}>
-                                        {donation.title}
-                                    </h4>
-                                    {urgent && donation.status === 'available' && (
-                                        <span style={{ background: 'linear-gradient(135deg, #fef2f2, #fee2e2)', color: '#dc2626', fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '999px', whiteSpace: 'nowrap', marginLeft: '8px' }}>
-                                            ⚡ {donation.emergencyMode ? 'EMERGENCY' : 'URGENT'}
-                                        </span>
+            {sortedDonations
+                .filter(donation => donation.status === 'available')
+                .map((donation) => {
+                    const urgent = isUrgent(donation.expiryTime);
+                    const icon = urgent ? urgentIcon : normalIcon;
+                    const coords = donation.location.coordinates;
+                    // Backend stores as [lng, lat], Leaflet needs [lat, lng]
+                    return (
+                        <Marker key={donation._id} position={[coords[1], coords[0]] as L.LatLngExpression} icon={icon}>
+                            <Popup maxWidth={280} minWidth={230}>
+                                <div style={{ fontFamily: 'system-ui, sans-serif' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                                        <h4 style={{ fontWeight: 700, fontSize: '15px', margin: 0, color: '#111827', lineHeight: '1.3' }}>
+                                            {donation.title}
+                                        </h4>
+                                        {urgent && donation.status === 'available' && (
+                                            <span style={{ background: 'linear-gradient(135deg, #fef2f2, #fee2e2)', color: '#dc2626', fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '999px', whiteSpace: 'nowrap', marginLeft: '8px' }}>
+                                                ⚡ {donation.emergencyMode ? 'EMERGENCY' : 'URGENT'}
+                                            </span>
+                                        )}
+                                    </div>
+                                    {donation.riskScore !== undefined && (
+                                        <div style={{ marginBottom: '8px' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                                                <span style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600 }}>SAFETY RISK</span>
+                                                <span style={{ fontSize: '10px', color: donation.riskScore > 75 ? '#dc2626' : donation.riskScore > 40 ? '#ea580c' : '#059669', fontWeight: 800 }}>{donation.riskScore}%</span>
+                                            </div>
+                                            <div style={{ height: '4px', background: '#f3f4f6', borderRadius: '2px', overflow: 'hidden' }}>
+                                                <div style={{ height: '100%', width: `${donation.riskScore}%`, background: donation.riskScore > 75 ? '#ef4444' : donation.riskScore > 40 ? '#f97316' : '#10b981' }} />
+                                            </div>
+                                        </div>
+                                    )}
+                                    <div style={{ fontSize: '12px', color: '#6b7280', lineHeight: '1.7' }}>
+                                        <p style={{ margin: '0 0 2px 0' }}>🏪 {donation.donor.name}</p>
+                                        <p style={{ margin: '0 0 2px 0' }}>🍽️ {donation.servingsCount} servings • {donation.quantity} {donation.unit}</p>
+                                        <p style={{ margin: '0 0 2px 0' }}>📍 {donation.location.distance} km away</p>
+                                        <p style={{ margin: '0', color: urgent ? '#ea580c' : '#6b7280', fontWeight: urgent ? 600 : 400 }}>
+                                            ⏰ {getTimeRemaining(donation.expiryTime)}
+                                        </p>
+                                    </div>
+                                    <div style={{ height: '1px', background: '#e5e7eb', margin: '10px 0' }} />
+                                    {donation.status === 'available' ? (
+                                        <div>
+                                            <button onClick={() => handleClaim(donation._id)} disabled={claimingId === donation._id}
+                                                style={{ width: '100%', padding: '8px', background: 'linear-gradient(135deg, #059669, #047857)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>
+                                                {claimingId === donation._id ? '⏳ Claiming...' : '✅ Claim Now'}
+                                            </button>
+                                            <div style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
+                                                <button onClick={() => { setStreetViewDonation(donation); setIsExpanded(true); }}
+                                                    style={{ flex: 1, textAlign: 'center', fontSize: '11px', fontWeight: 600, padding: '6px 8px', background: 'linear-gradient(135deg, #eff6ff, #dbeafe)', color: '#1d4ed8', borderRadius: '6px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                                    👁️ 360° View
+                                                </button>
+                                                <a href={getDirectionsUrl(coords[0], coords[1])} target="_blank" rel="noopener noreferrer"
+                                                    style={{ flex: 1, textAlign: 'center', fontSize: '11px', fontWeight: 600, padding: '6px 8px', background: 'linear-gradient(135deg, #ecfdf5, #d1fae5)', color: '#059669', borderRadius: '6px', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                                    🧭 Directions
+                                                </a>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <p style={{ textAlign: 'center', color: '#9ca3af', fontSize: '12px', fontWeight: 600 }}>✓ Already Claimed</p>
                                     )}
                                 </div>
-                                {donation.riskScore !== undefined && (
-                                    <div style={{ marginBottom: '8px' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
-                                            <span style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600 }}>SAFETY RISK</span>
-                                            <span style={{ fontSize: '10px', color: donation.riskScore > 75 ? '#dc2626' : donation.riskScore > 40 ? '#ea580c' : '#059669', fontWeight: 800 }}>{donation.riskScore}%</span>
-                                        </div>
-                                        <div style={{ height: '4px', background: '#f3f4f6', borderRadius: '2px', overflow: 'hidden' }}>
-                                            <div style={{ height: '100%', width: `${donation.riskScore}%`, background: donation.riskScore > 75 ? '#ef4444' : donation.riskScore > 40 ? '#f97316' : '#10b981' }} />
-                                        </div>
-                                    </div>
-                                )}
-                                <div style={{ fontSize: '12px', color: '#6b7280', lineHeight: '1.7' }}>
-                                    <p style={{ margin: '0 0 2px 0' }}>🏪 {donation.donor.name}</p>
-                                    <p style={{ margin: '0 0 2px 0' }}>🍽️ {donation.servingsCount} servings • {donation.quantity} {donation.unit}</p>
-                                    <p style={{ margin: '0 0 2px 0' }}>📍 {donation.location.distance} km away</p>
-                                    <p style={{ margin: '0', color: urgent ? '#ea580c' : '#6b7280', fontWeight: urgent ? 600 : 400 }}>
-                                        ⏰ {getTimeRemaining(donation.expiryTime)}
-                                    </p>
-                                </div>
-                                <div style={{ height: '1px', background: '#e5e7eb', margin: '10px 0' }} />
-                                {donation.status === 'available' ? (
-                                    <div>
-                                        <button onClick={() => handleClaim(donation._id)} disabled={claimingId === donation._id}
-                                            style={{ width: '100%', padding: '8px', background: 'linear-gradient(135deg, #059669, #047857)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>
-                                            {claimingId === donation._id ? '⏳ Claiming...' : '✅ Claim Now'}
-                                        </button>
-                                        <div style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
-                                            <button onClick={() => { setStreetViewDonation(donation); setIsExpanded(true); }}
-                                                style={{ flex: 1, textAlign: 'center', fontSize: '11px', fontWeight: 600, padding: '6px 8px', background: 'linear-gradient(135deg, #eff6ff, #dbeafe)', color: '#1d4ed8', borderRadius: '6px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                                                👁️ 360° View
-                                            </button>
-                                            <a href={getDirectionsUrl(coords[0], coords[1])} target="_blank" rel="noopener noreferrer"
-                                                style={{ flex: 1, textAlign: 'center', fontSize: '11px', fontWeight: 600, padding: '6px 8px', background: 'linear-gradient(135deg, #ecfdf5, #d1fae5)', color: '#059669', borderRadius: '6px', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                                                🧭 Directions
-                                            </a>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <p style={{ textAlign: 'center', color: '#9ca3af', fontSize: '12px', fontWeight: 600 }}>✓ Already Claimed</p>
-                                )}
-                            </div>
-                        </Popup>
-                    </Marker>
-                );
-            })}
+                            </Popup>
+                        </Marker>
+                    );
+                })}
         </MapContainer>
     );
 
