@@ -25,6 +25,18 @@ import { donationsApi } from '@/lib/api';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { useMap } from 'react-leaflet';
+
+// Helper component to recenter map when selected donation changes
+const RecenterMap = ({ position }: { position: L.LatLngExpression | null }) => {
+    const map = useMap();
+    useEffect(() => {
+        if (position) {
+            map.flyTo(position, 15, { duration: 1.5 });
+        }
+    }, [position, map]);
+    return null;
+};
 
 // Custom marker icons with pulse animation for urgent
 const createCustomIcon = (color: string, isUrgent: boolean) => {
@@ -320,7 +332,8 @@ export default function NgoAvailablePage() {
                     const coords = donation.location.coordinates;
                     // Backend stores as [lng, lat], Leaflet needs [lat, lng]
                     return (
-                        <Marker key={donation._id} position={[coords[1], coords[0]] as L.LatLngExpression} icon={icon}>
+                        <Marker key={donation._id} position={[coords[1], coords[0]] as L.LatLngExpression}
+                            icon={icon} eventHandlers={{ click: () => setSelectedDonation(donation) }}>
                             <Popup maxWidth={280} minWidth={230}>
                                 <div style={{ fontFamily: 'system-ui, sans-serif' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
@@ -364,7 +377,7 @@ export default function NgoAvailablePage() {
                                                     style={{ flex: 1, textAlign: 'center', fontSize: '11px', fontWeight: 600, padding: '6px 8px', background: 'linear-gradient(135deg, #eff6ff, #dbeafe)', color: '#1d4ed8', borderRadius: '6px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                                                     👁️ 360° View
                                                 </button>
-                                                <a href={getDirectionsUrl(coords[0], coords[1])} target="_blank" rel="noopener noreferrer"
+                                                <a href={getDirectionsUrl(coords[1], coords[0])} target="_blank" rel="noopener noreferrer"
                                                     style={{ flex: 1, textAlign: 'center', fontSize: '11px', fontWeight: 600, padding: '6px 8px', background: 'linear-gradient(135deg, #ecfdf5, #d1fae5)', color: '#059669', borderRadius: '6px', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                                                     🧭 Directions
                                                 </a>
@@ -378,6 +391,15 @@ export default function NgoAvailablePage() {
                         </Marker>
                     );
                 })}
+
+            {/* Recenter map on selected donation or street view target */}
+            {(selectedDonation || streetViewDonation) && (
+                <RecenterMap position={
+                    selectedDonation
+                        ? [selectedDonation.location.coordinates[1], selectedDonation.location.coordinates[0]]
+                        : [streetViewDonation!.location.coordinates[1], streetViewDonation!.location.coordinates[0]]
+                } />
+            )}
         </MapContainer>
     );
 
@@ -506,12 +528,12 @@ export default function NgoAvailablePage() {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <a href={getStreetViewUrl(streetViewDonation.location.coordinates[0], streetViewDonation.location.coordinates[1])}
+                                        <a href={getStreetViewUrl(streetViewDonation.location.coordinates[1], streetViewDonation.location.coordinates[0])}
                                             target="_blank" rel="noopener noreferrer"
                                             className="flex items-center gap-1 px-2.5 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white text-[11px] font-medium transition-all">
                                             <ExternalLink className="w-3 h-3" /> Open Full
                                         </a>
-                                        <a href={getDirectionsUrl(streetViewDonation.location.coordinates[0], streetViewDonation.location.coordinates[1])}
+                                        <a href={getDirectionsUrl(streetViewDonation.location.coordinates[1], streetViewDonation.location.coordinates[0])}
                                             target="_blank" rel="noopener noreferrer"
                                             className="flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 rounded-lg text-emerald-300 text-[11px] font-medium transition-all">
                                             <Navigation className="w-3 h-3" /> Navigate
@@ -527,7 +549,7 @@ export default function NgoAvailablePage() {
                                 <div className="flex-1 relative bg-black">
                                     <iframe
                                         key={streetViewDonation._id}
-                                        src={getStreetViewIframeUrl(streetViewDonation.location.coordinates[0], streetViewDonation.location.coordinates[1])}
+                                        src={getStreetViewIframeUrl(streetViewDonation.location.coordinates[1], streetViewDonation.location.coordinates[0])}
                                         style={{ width: '100%', height: '100%', border: 'none' }}
                                         allowFullScreen
                                         referrerPolicy="no-referrer-when-downgrade"
@@ -660,64 +682,66 @@ export default function NgoAvailablePage() {
                                 <p className="text-emerald-100 text-xs mt-0.5">Click a donation or expand for 360° view</p>
                             </div>
 
-                            {sortedDonations.map((donation) => {
-                                const coords = donation.location.coordinates;
-                                return (
-                                    <Card key={donation._id}
-                                        className={`cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 ${selectedDonation?._id === donation._id ? 'ring-2 ring-emerald-500 shadow-lg' : ''
-                                            } ${donation.status === 'claimed' ? 'opacity-50' : ''}`}
-                                        onClick={() => setSelectedDonation(donation)}>
-                                        <CardContent className="p-3">
-                                            <div className="flex gap-3">
-                                                {/* Thumbnail */}
-                                                <div className="w-16 h-16 rounded-md overflow-hidden shrink-0 bg-gray-100 flex items-center justify-center">
-                                                    <img
-                                                        src={donation.imageUrl?.startsWith('http') ? donation.imageUrl : (donation.imageUrl ? `http://localhost:5001${donation.imageUrl}` : "https://placehold.co/600x400?text=Food")}
-                                                        alt={donation.title}
-                                                        className="w-full h-full object-cover"
-                                                        onError={(e) => {
-                                                            const target = e.target as HTMLImageElement;
-                                                            target.src = "https://placehold.co/600x400?text=Food";
-                                                            target.onerror = null; // Prevent infinite loop
-                                                        }}
-                                                    />
-                                                </div>
-                                                <div className="flex-1">
-                                                    <div className="flex justify-between items-start">
-                                                        <div className="flex-1">
-                                                            <h4 className="font-bold text-sm text-gray-900 line-clamp-1">{donation.title}</h4>
-                                                            <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{donation.donor.name}</p>
+                            {sortedDonations
+                                .filter(donation => donation.status === 'available')
+                                .map((donation) => {
+                                    const coords = donation.location.coordinates;
+                                    return (
+                                        <Card key={donation._id}
+                                            className={`cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 ${selectedDonation?._id === donation._id ? 'ring-2 ring-emerald-500 shadow-lg' : ''
+                                                } ${donation.status === 'claimed' ? 'opacity-50' : ''}`}
+                                            onClick={() => setSelectedDonation(donation)}>
+                                            <CardContent className="p-3">
+                                                <div className="flex gap-3">
+                                                    {/* Thumbnail */}
+                                                    <div className="w-16 h-16 rounded-md overflow-hidden shrink-0 bg-gray-100 flex items-center justify-center">
+                                                        <img
+                                                            src={donation.imageUrl?.startsWith('http') ? donation.imageUrl : (donation.imageUrl ? `http://localhost:5001${donation.imageUrl}` : "https://placehold.co/600x400?text=Food")}
+                                                            alt={donation.title}
+                                                            className="w-full h-full object-cover"
+                                                            onError={(e) => {
+                                                                const target = e.target as HTMLImageElement;
+                                                                target.src = "https://placehold.co/600x400?text=Food";
+                                                                target.onerror = null; // Prevent infinite loop
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <div className="flex justify-between items-start">
+                                                            <div className="flex-1">
+                                                                <h4 className="font-bold text-sm text-gray-900 line-clamp-1">{donation.title}</h4>
+                                                                <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{donation.donor.name}</p>
+                                                            </div>
+                                                            {isUrgent(donation.expiryTime) && donation.status === 'available' && (
+                                                                <span className="px-2 py-0.5 bg-gradient-to-r from-red-500 to-orange-500 text-white text-[10px] font-bold rounded-full animate-pulse">
+                                                                    URGENT
+                                                                </span>
+                                                            )}
                                                         </div>
-                                                        {isUrgent(donation.expiryTime) && donation.status === 'available' && (
-                                                            <span className="px-2 py-0.5 bg-gradient-to-r from-red-500 to-orange-500 text-white text-[10px] font-bold rounded-full animate-pulse">
-                                                                URGENT
+                                                        <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                                                            <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {donation.location.distance} km</span>
+                                                            <span className={`flex items-center gap-1 ${isUrgent(donation.expiryTime) ? 'text-red-600 font-medium' : ''}`}>
+                                                                <Clock className="w-3 h-3" /> {getTimeRemaining(donation.expiryTime)}
                                                             </span>
-                                                        )}
-                                                    </div>
-                                                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
-                                                        <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {donation.location.distance} km</span>
-                                                        <span className={`flex items-center gap-1 ${isUrgent(donation.expiryTime) ? 'text-red-600 font-medium' : ''}`}>
-                                                            <Clock className="w-3 h-3" /> {getTimeRemaining(donation.expiryTime)}
-                                                        </span>
-                                                    </div>
-                                                    {/* Quick Action Buttons */}
-                                                    <div className="flex gap-2 mt-3">
-                                                        <button onClick={(e) => { e.stopPropagation(); setStreetViewDonation(donation); setIsExpanded(true); }}
-                                                            className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-[11px] font-semibold rounded-lg transition-all">
-                                                            <Eye className="w-3 h-3" /> 360° View
-                                                        </button>
-                                                        <a href={getDirectionsUrl(coords[0], coords[1])} target="_blank" rel="noopener noreferrer"
-                                                            onClick={(e) => e.stopPropagation()}
-                                                            className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[11px] font-semibold rounded-lg transition-all no-underline">
-                                                            <Navigation className="w-3 h-3" /> Directions
-                                                        </a>
+                                                        </div>
+                                                        {/* Quick Action Buttons */}
+                                                        <div className="flex gap-2 mt-3">
+                                                            <button onClick={(e) => { e.stopPropagation(); setStreetViewDonation(donation); setIsExpanded(true); }}
+                                                                className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-[11px] font-semibold rounded-lg transition-all">
+                                                                <Eye className="w-3 h-3" /> 360° View
+                                                            </button>
+                                                            <a href={getDirectionsUrl(coords[1], coords[0])} target="_blank" rel="noopener noreferrer"
+                                                                onClick={(e) => e.stopPropagation()}
+                                                                className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[11px] font-semibold rounded-lg transition-all no-underline">
+                                                                <Navigation className="w-3 h-3" /> Directions
+                                                            </a>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                );
-                            })}
+                                            </CardContent>
+                                        </Card>
+                                    );
+                                })}
                         </div>
                     </div>
                 ) : (
