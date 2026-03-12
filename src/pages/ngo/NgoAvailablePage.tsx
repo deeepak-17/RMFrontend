@@ -22,6 +22,7 @@ import {
     Mountain, Maximize2, X, Navigation, ExternalLink
 } from 'lucide-react';
 import { donationsApi } from '@/lib/api';
+import { socketService } from '@/lib/socket';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -160,6 +161,8 @@ export default function NgoAvailablePage() {
     const [activeLayer, setActiveLayer] = useState<keyof typeof tileLayers>('street');
     const [isExpanded, setIsExpanded] = useState(false);
     const [streetViewDonation, setStreetViewDonation] = useState<Donation | null>(null);
+    const [userLocation, setUserLocation] = useState<[number, number]>([11.0168, 76.9558]); // Default to Coimbatore
+    const [foodTypeFilter, setFoodTypeFilter] = useState<string>('all');
 
     // Fetch donations from API with geolocation
     useEffect(() => {
@@ -197,6 +200,7 @@ export default function NgoAvailablePage() {
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
                     clearTimeout(geoTimeout);
+                    setUserLocation([pos.coords.latitude, pos.coords.longitude]);
                     fetchDonations(pos.coords.latitude, pos.coords.longitude);
                 },
                 (err) => {
@@ -209,6 +213,27 @@ export default function NgoAvailablePage() {
         } else {
             fetchDonations(0, 0);
         }
+
+        // Socket listener for real-time new donations
+        const onNewDonation = () => {
+            console.log("Real-time: New donation available");
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => fetchDonations(pos.coords.latitude, pos.coords.longitude),
+                    () => fetchDonations(0, 0)
+                );
+            } else {
+                fetchDonations(0, 0);
+            }
+        };
+
+        socketService.on('donation:new', onNewDonation);
+        socketService.on('donation:deleted', onNewDonation);
+
+        return () => {
+            socketService.off('donation:new', onNewDonation);
+            socketService.off('donation:deleted', onNewDonation);
+        };
     }, []);
 
     // Lock body scroll when expanded
@@ -283,15 +308,23 @@ export default function NgoAvailablePage() {
     // Filter and sort donations
     const filteredDonations = useMemo(() => {
         return donations.filter(d => {
-            if (!searchQuery) return true;
-            return (
-                d.title.toLowerCase().includes(searchQuery) ||
-                d.description.toLowerCase().includes(searchQuery) ||
-                (d.donor?.name || '').toLowerCase().includes(searchQuery) ||
-                d.foodType.toLowerCase().includes(searchQuery)
-            );
+            // Text search filter
+            if (searchQuery) {
+                const matchesSearch = (
+                    d.title.toLowerCase().includes(searchQuery) ||
+                    d.description.toLowerCase().includes(searchQuery) ||
+                    (d.donor?.name || '').toLowerCase().includes(searchQuery) ||
+                    d.foodType.toLowerCase().includes(searchQuery)
+                );
+                if (!matchesSearch) return false;
+            }
+            // Food type filter
+            if (foodTypeFilter !== 'all' && d.foodType?.toLowerCase() !== foodTypeFilter.toLowerCase()) {
+                return false;
+            }
+            return true;
         });
-    }, [donations, searchQuery]);
+    }, [donations, searchQuery, foodTypeFilter]);
 
     const sortedDonations = useMemo(() => {
         return [...filteredDonations].sort((a, b) => {
@@ -306,7 +339,7 @@ export default function NgoAvailablePage() {
     // ---- Shared Map Component ----
     const renderMap = (height: string) => (
         <MapContainer
-            center={[13.0827, 80.2707] as L.LatLngExpression}
+            center={userLocation as L.LatLngExpression}
             zoom={14}
             style={{ height, width: '100%' }}
             zoomControl={true}
@@ -317,7 +350,7 @@ export default function NgoAvailablePage() {
                 url={tileLayers[activeLayer].url}
             />
             <Circle
-                center={[13.0827, 80.2707] as L.LatLngExpression}
+                center={userLocation as L.LatLngExpression}
                 radius={4000}
                 pathOptions={{
                     color: '#059669', fillColor: '#059669',
@@ -630,6 +663,17 @@ export default function NgoAvailablePage() {
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
+                            {/* Food type filter */}
+                            <select
+                                value={foodTypeFilter}
+                                onChange={(e) => setFoodTypeFilter(e.target.value)}
+                                className="px-3 py-1.5 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-300"
+                            >
+                                <option value="all">All Types</option>
+                                <option value="veg">Vegetarian</option>
+                                <option value="non-veg">Non-Veg</option>
+                                <option value="vegan">Vegan</option>
+                            </select>
                             <Button variant={viewMode === 'list' ? 'default' : 'outline'} size="sm"
                                 onClick={() => setViewMode('list')}
                                 className={viewMode === 'list' ? 'bg-emerald-600' : ''}>

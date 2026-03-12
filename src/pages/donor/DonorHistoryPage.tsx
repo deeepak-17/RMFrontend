@@ -102,6 +102,7 @@ export default function DonorHistoryPage() {
         available: donations.filter((d) => d.status === 'available').length,
         reserved: donations.filter((d) => d.status === 'reserved').length,
         collected: donations.filter((d) => d.status === 'collected').length,
+        expired: donations.filter((d) => d.status === 'expired').length,
     };
 
     const navigate = useNavigate();
@@ -170,12 +171,13 @@ export default function DonorHistoryPage() {
                 <h1 className="text-2xl font-bold mb-4">My Donations</h1>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                     {[
                         { label: 'Total', value: stats.total, filter: 'all' as const },
                         { label: 'Available', value: stats.available, filter: 'available' as const },
                         { label: 'Reserved', value: stats.reserved, filter: 'reserved' as const },
                         { label: 'Collected', value: stats.collected, filter: 'collected' as const },
+                        { label: 'Expired', value: stats.expired, filter: 'expired' as const },
                     ].map((stat) => (
                         <Card
                             key={stat.label}

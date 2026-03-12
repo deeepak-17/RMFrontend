@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import Logo from "@/components/ui/Logo";
 
 const navLinks = [
   { label: "How it Works", href: "#how-it-works" },
@@ -36,14 +37,7 @@ export default function Header() {
     >
       <div className="container mx-auto px-6 max-w-[1280px] flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-md shadow-orange-500/30 group-hover:scale-105 transition-transform duration-200">
-            <span className="text-white font-black text-base tracking-tight">R</span>
-          </div>
-          <span className="text-white font-bold text-[17px] tracking-tight hidden sm:block">
-            ResQMeals
-          </span>
-        </Link>
+        <Logo size="md" showText={true} linkTo="/" textColor="text-white" />
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-1">

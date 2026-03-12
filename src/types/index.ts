@@ -15,6 +15,8 @@ export interface User {
     completedTasks?: number;
     totalAssignedTasks?: number;
     createdAt: string;
+    phone?: string;
+    profilePicture?: string;
     verificationDocument?: string;
     documentType?: string;
     location?: {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,14 +14,10 @@ const brandHighlights = [
 
 export default function LoginPage() {
     const navigate = useNavigate();
-    const location = useLocation();
     const { login } = useAuth();
 
-    // Check if we came from a redirect asking for admin
-    const state = location.state as { prefillAdmin?: boolean } | null;
-
-    const [email, setEmail] = useState(state?.prefillAdmin ? "admin@resqmeals.com" : "");
-    const [password, setPassword] = useState(state?.prefillAdmin ? "AdminPassword123!" : "");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 

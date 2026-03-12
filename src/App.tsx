@@ -32,6 +32,7 @@ import {
     VolunteerDashboard,
     VolunteerTasksPage,
 } from "@/pages";
+import ProfilePage from "@/pages/ProfilePage";
 
 function LandingPage() {
     return (
@@ -235,6 +236,13 @@ function App() {
                             <AppLayout><VolunteerDashboard /></AppLayout>
                         </ProtectedRoute>
                     } />
+                    {/* Profile route (all roles) */}
+                    <Route path="/profile" element={
+                        <ProtectedRoute>
+                            <AppLayout><ProfilePage /></AppLayout>
+                        </ProtectedRoute>
+                    } />
+
                     <Route path="/volunteer/tasks" element={
                         <ProtectedRoute allowedRoles={['volunteer']}>
                             <AppLayout><VolunteerTasksPage /></AppLayout>

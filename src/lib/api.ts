@@ -37,6 +37,12 @@ export const authApi = {
     login: (data: { email: string; password: string }) =>
         api.post('/auth/login', data),
     getMe: () => api.get('/auth/me'),
+    updateProfile: (data: { name?: string; phone?: string }) =>
+        api.put('/auth/profile', data),
+    uploadAvatar: (formData: FormData) =>
+        api.post('/auth/upload-avatar', formData),
+    changePassword: (data: { currentPassword: string; newPassword: string }) =>
+        api.put('/auth/change-password', data),
 };
 
 // Donations API
